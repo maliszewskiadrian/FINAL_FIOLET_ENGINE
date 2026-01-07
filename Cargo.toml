@@ -1,0 +1,18 @@
+[package]
+name = "fiolet_engine"
+version = "1.2.0"
+edition = "2021"
+authors = ["Adrian Maliszewski <maliszewskiadrian01@gmail.com>"]
+description = "Deterministic Safety Substrate for AGI/ASI"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+# Używamy tylko lekkich zależności kompatybilnych z WASM/no_std
+blake3 = { version = "1.5", default-features = false } # Do haszowania PCO
+
+[profile.release]
+opt-level = 3
+lto = true
+panic = "abort" # Architektura "Hard Fail"
