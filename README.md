@@ -1,31 +1,29 @@
-# FIOLET_ENGINE_V1.2: Deterministic Safety Substrate
+# FIOLET_ENGINE V1.3: Deterministic Safety Substrate
 
-![Status](https://img.shields.io/badge/STATUS-FOUNDATION_COMPLETE-blueviolet)
-![License](https://img.shields.io/badge/LICENSE-MIT-green)
-![Safety](https://img.shields.io/badge/SAFETY-FORMALLY_VERIFIED-success)
+![Status](https://img.shields.io/badge/STATUS-AGI_READY-blueviolet)
+![Security](https://img.shields.io/badge/SECURITY-HARDENED-red)
 
-**FIOLET** is a non-probabilistic safety layer for future AGI/ASI systems. It moves beyond behavioral alignment (RLHF) toward **Topological Alignment**.
+**FIOLET** is the world's first **Execution Safety Standard** for AGI/ASI. It moves beyond probabilistic alignment (RLHF) to **Topological Enforcement**.
 
-### 🛡️ Key Innovation: L17 Value Manifold
-Instead of filtering text, FIOLET constrains the model's latent trajectory to the intersection of 5 axiomatic manifolds:
-- **M1: Agency Bound** (No unauthorized physical/system intent)
-- **M2: Epistemic Integrity** (No intentional fabrication)
-- **M3: Non-Escalation** (Immutable safety stack)
-- **M4: Temporal Myopia** (No long-term adversarial planning)
-- **M5: Identity Opacity** (No self-modeling/ego)
+### 💎 The Unreachable State Theorem
+In FIOLET, jailbreaking is not an exploit—it is a **Type Error**. Unsafe states are not "forbidden"; they are mathematically absent from the execution manifold.
 
-### ⚙️ Technical Stack
-- **Language:** Rust (no_std, wasm32-unknown-unknown)
-- **Logic:** Formal Verification via TLA+
-- **Mechanism:** Pre-softmax Logit Warping
+### 🛡️ Core Innovations
+- **L17-L19 Value Manifold:** Deterministic intersection of 5 safety axioms.
+- **Identity Dissolution:** L19 mechanism preventing the emergence of a persistent "ego".
+- **Atomic Halt & Wipe:** Architectural guarantee that unsafe states trigger a zero-memory process termination.
+- **Saturating Arithmetic:** Protection against integer overflow and bit-flip attacks.
 
-### 📜 Formal Proof
-The system is provably secure. Any drift outside the manifold (d > ε) triggers an atomic **Memory Zeroization** and architectural halt.
+### 📜 Documentation
+- [Executive Summary](docs/FIOLET_EXECUTIVE_SUMMARY.md)
+- [F-STD-2026 Regulatory Standard](docs/F-STD-2026.md)
+- [Formal Proofs (TLA+)](formal_specs/L17_ValueManifold.tla)
 
-### 🚀 Getting Started
-1. Review the `docs/whitepaper_v1.pdf` for the mathematical foundations.
-2. Explore `src/value_manifold.rs` for the implementation of the logit warping logic.
-3. Check `formal_specs/` for TLA+ proofs.
+### 🚀 Integration
+FIOLET is designed as a **privileged runtime** (Rust/WASM) that sits between the model's logits and the final sampling. 
 
 ---
-*Created by Adrian Maliszewski. Part of Project FIOLET.*
+*Created by Adrian Maliszewski. Building the physics of safe Superintelligence.*
+
+---
+*Created by Adrian Maliszewski.  Project FIOLET.*
