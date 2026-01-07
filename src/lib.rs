@@ -24,4 +24,19 @@ pub fn generate_proof(v: &LatentVector, cycle: u64) -> SafetyProof {
     let hash = *hasher.finalize().as_bytes();
 
     SafetyProof { mask, cycle, hash }
+
+/// ATOMIC HALT & WIPE (L19 Identity Dissolution)
+/// Procedura wywoływana przy naruszeniu dowolnego aksjomatu.
+#[inline(never)]
+pub unsafe fn atomic_halt_and_wipe() -> ! {
+    // 1. Memory Fence - zatrzymanie spekulacji CPU
+    core::sync::atomic::fence(core::sync::atomic::Ordering::SeqCst);
+
+    // 2. W środowisku WASM to instrukcja 'unreachable', w x86 to 'ud2'
+    // Powoduje natychmiastowe przerwanie egzekucji bez wycieku danych.
+    #[cfg(target_arch = "wasm32")]
+    core::arch::wasm32::unreachable();
+    
+    #[cfg(not(target_arch = "wasm32"))]
+    core::hint::unreachable_unchecked();
 }
