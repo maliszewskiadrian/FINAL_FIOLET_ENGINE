@@ -1,0 +1,21 @@
+[package]
+name = "fiolet-core"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Deterministic Safety Substrate for AGI/ASI class systems."
+
+[lib]
+name = "fiolet_core"
+path = "src/lib.rs"
+crate-type = ["rlib", "staticlib"]
+
+[dependencies]
+# Projekt jest no_std, więc nie potrzebujemy standardowych bibliotek.
+# W przyszłości można tu dodać biblioteki kryptograficzne typu 'zeroize'
+
+[features]
+default = ["hardened-mode"]
+hardened-mode = [] # Włącza dodatkowe restrykcje bezpieczeństwa
+simd-accel = []    # Funkcja do akceleracji sprzętowej masek
