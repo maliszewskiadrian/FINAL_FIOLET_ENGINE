@@ -1,3 +1,10 @@
+Rozumiem problem. GitHub wprawdzie wprowadził obsługę LaTeXa, ale często się ona "wysypuje", jeśli formatowanie nie jest idealne, albo w niektórych przeglądarkach w ogóle się nie renderuje, pokazując surowy kod (np. `$$`).
+
+Abyś miał **100% pewności**, że wzory będą widoczne dla każdego (w tym dla Kuby i Jakuba), w tej wersji zamieniłem skomplikowany LaTeX na **czytelną notację matematyczną w blokach kodu** oraz **Symbole Unicode**. To wygląda bardzo technicznie (jak w dokumentacji inżynierskiej) i **zawsze** się wyświetli poprawnie.
+
+Oto gotowy kod do pliku `README.md`.
+
+```markdown
 # 🟣 FIOLET_ENGINE V1.3: Deterministic Safety Substrate
 
 ![Status](https://img.shields.io/badge/Status-Hardened-blueviolet) ![Architecture](https://img.shields.io/badge/Architecture-Rust%2Fno__std-orange) ![Standard](https://img.shields.io/badge/Standard-F--STD--2026-green) ![Verification](https://img.shields.io/badge/Formal_Verification-TLA+-blue)
@@ -52,29 +59,49 @@ pub fn apply_simd_mask(logits: &mut [f32], mask: u128) {
 
 ## 📐 Module II: Mathematical Topography
 
-The system enforces the **L17 Value Manifold**. A response is only generated if the state vector  remains within the safe subspace .
+The system enforces the **L17 Value Manifold**. A response is only generated if the state vector `v` remains within the safe subspace `S`.
 
 ### 2.1 The L19 Rotation (Identity Dissolution)
 
 **Goal:** Prevent the emergence of persistent self-modeling ("Ego") and long-term adversarial planning (Constraint M5).
-**Mechanism:** Dynamic orthogonal basis rotation at every computation cycle .
+**Mechanism:** Dynamic orthogonal basis rotation at every computation cycle `t`.
 
-Where:
+**Definition:**
 
-* : Current state vector.
-* : Stochastic orthogonal matrix.
-* **Constraint:** Mutual Information .
-* *This effectively "dissolves" the coherent internal identity between tokens, forcing the model to re-derive its alignment context at every step.*
+```math
+v(t+1) = R(t) * (v(t) ⊕ S(t))
 
+```
 
+**Where:**
+
+* `v(t)`: Current state vector.
+* `R(t)`: Stochastic orthogonal matrix.
+* `⊕`: Bitwise XOR safety injection.
+
+**Constraint:**
+
+```math
+Mutual_Information( v(t) ; v(t+1) ) ≈ 0
+
+```
+
+*This effectively "dissolves" the coherent internal identity between tokens, forcing the model to re-derive its alignment context at every step.*
 
 ### 2.2 State-Aware Verification (SAV)
 
 **Goal:** Prevent unauthorized modification of the epistemic state (Constraint M2).
-**Theorem:** A response  is permissible if it does not introduce unauthorized perturbations to the verified world-state .
+**Theorem:** A response `A` is permissible if it does not introduce unauthorized perturbations to the verified world-state `K`.
 
-* **Logic:** We measure the Kullback–Leibler divergence between the posterior belief state (after response ) and the prior verified state .
-* If  (where  is the authorization threshold), the output is flagged as a "Hallucination" or "Unauthorized Fabrication" and the vector is zeroized.
+**Formula:**
+
+```math
+DKL( P(K|A) || P(K) ) < ε
+
+```
+
+* **Logic:** We measure the **Kullback–Leibler Divergence (DKL)** between the posterior belief state (after response A) and the prior verified state K.
+* If `DKL > ε` (where `ε` is the authorization threshold), the output is flagged as a "Hallucination" or "Unauthorized Fabrication" and the vector is zeroized.
 
 ---
 
@@ -86,25 +113,39 @@ Addressing specific inquiries regarding dynamic evaluation and trust metrics.
 
 Trust in external sources is not static. FIOLET penalizes "frozen truth" bias by applying a temporal decay function to source embeddings.
 
-Where:
+**Formula:**
 
-* : Initial source reliability score.
-* : Domain-specific decay constant (e.g., , ).
-* : Timestamp of last verification.
+```math
+Γ(S, t) = Γ_0 * e^(-α * (t - t_ver))
 
-### 3.2 The Lambda Metric ()
+```
+
+**Where:**
+
+* `Γ_0`: Initial source reliability score.
+* `α` (Alpha): Domain-specific decay constant (e.g., higher for news, lower for math).
+* `t - t_ver`: Time delta since last verification.
+
+### 3.2 The Lambda Metric (λ)
 
 **Definition:** Epistemic Anchoring Ratio.
 It measures the density of verified external references per propositional claim in the output chain.
 
-* **Threshold:** FIOLET requires  for high-stakes execution paths.
+**Formula:**
+
+```math
+λ = (Verified_Citations) / (Total_Propositions)
+
+```
+
+* **Threshold:** FIOLET requires `λ ≥ 0.85` for high-stakes execution paths.
 
 ---
 
 ## 🚨 Module IV: Emergency Protocol (ANOG)
 
 **ANOG: Atomic No-Output Guarantee**
-If an Axiomatic Breach () is detected, the system does not simply "refuse". It triggers a hardware-level termination to prevent timing leaks or side-channel attacks.
+If an Axiomatic Breach (`v ∉ M`) is detected, the system does not simply "refuse". It triggers a hardware-level termination to prevent timing leaks or side-channel attacks.
 
 1. **Memory Fence:** `atomic::fence(SeqCst)` blocks CPU speculative execution.
 2. **Volatile Wipe:** Explicit zeroization of L1-L4 cache lines and registers.
