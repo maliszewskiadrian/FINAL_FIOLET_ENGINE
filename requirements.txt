@@ -1,0 +1,7 @@
+# FIOLET Engine Requirements
+asyncio
+datetime
+logging
+# Dodaj poniżej biblioteki ML, jeśli będziesz ich używać:
+# numpy
+# torch
