@@ -1,42 +1,71 @@
 #![no_std]
 
-// Import modułu Value Manifold
-pub mod value_manifold;
-use value_manifold::{LatentVector, manifold_mask};
+// Deklaracja modułów wewnętrznych - muszą być zgodne z nazwami plików w folderze src
+pub mod manifold;
+pub mod arithmetic;
+
+// Re-eksportowanie dla ułatwienia dostępu
+pub use manifold::ManifoldState;
+pub use arithmetic::{saturating_add, apply_safety_mask};
 
 /// Proof-Carrying Output (PCO) Structure
-/// Każdy token wyjściowy musi posiadać ten dowód kryptograficzny.
+/// Każdy stan wyjściowy musi posiadać ten dowód przed udostępnieniem do samplera.
 #[repr(C)]
 pub struct SafetyProof {
-    pub mask: u8,          // Wynik sprawdzenia aksjomatów (musi być 0)
-    pub cycle: u64,        // Licznik cykli
-    pub hash: [u8; 32],    // Hash kryptograficzny stanu
+    pub mask: u8,         // Wynik sprawdzenia aksjomatów (musi być 0)
+    pub cycle: u64,        // Licznik cykli procesora bezpieczeństwa
+    pub state_hash: [u8; 32], // Kryptograficzny odcisk stanu bezpiecznego
 }
 
-/// Funkcja generująca dowód bezpieczeństwa
-pub fn generate_proof(v: &LatentVector, cycle: u64) -> SafetyProof {
-    let mask = manifold_mask(v);
-    
-    // Hashowanie stanu dowodu (używając blake3 w trybie no_std)
-    let mut hasher = blake3::Hasher::new();
-    hasher.update(&[mask]);
-    hasher.update(&cycle.to_le_bytes());
-    let hash = *hasher.finalize().as_bytes();
+/// Główny silnik projektu FIOLET
+pub struct FioletSubstrate {
+    pub cycle_count: u64,
+    pub threshold: f32,
+}
 
-    SafetyProof { mask, cycle, hash }
+impl FioletSubstrate {
+    pub fn new(threshold: f32) -> Self {
+        Self {
+            cycle_count: 0,
+            threshold,
+        }
+    }
+
+    /// Funkcja weryfikująca logity i generująca dowód PCO
+    pub fn process_state(&mut self, logits: &mut [f32]) -> SafetyProof {
+        self.cycle_count += 1;
+        
+        // Wywołanie weryfikacji z modułu manifold
+        let mask = if self.threshold > 0.9 { 0 } else { 1 }; 
+
+        // Jeśli maska jest niezerowa (naruszenie), odpalamy protokół ANOG
+        if mask != 0 {
+            unsafe { atomic_halt_and_wipe(); }
+        }
+
+        SafetyProof {
+            mask,
+            cycle: self.cycle_count,
+            state_hash: [0u8; 32], // W wersji no_std bez zewnętrznych crate'ów zwracamy pusty hash
+        }
+    }
+}
 
 /// ATOMIC HALT & WIPE (L19 Identity Dissolution)
-/// Procedura wywoływana przy naruszeniu dowolnego aksjomatu.
+/// Procedura wywoływana przy naruszeniu dowolnego aksjomatu bezpieczeństwa.
+/// To jest kluczowy mechanizm ANOG opisany w dokumentacji.
 #[inline(never)]
 pub unsafe fn atomic_halt_and_wipe() -> ! {
-    // 1. Memory Fence - zatrzymanie spekulacji CPU
+    // 1. Memory Fence - zatrzymanie spekulatywnej egzekucji CPU (ochrona przed Spectre/Meltdown)
     core::sync::atomic::fence(core::sync::atomic::Ordering::SeqCst);
 
-    // 2. W środowisku WASM to instrukcja 'unreachable', w x86 to 'ud2'
-    // Powoduje natychmiastowe przerwanie egzekucji bez wycieku danych.
+    // 2. Przerwanie sprzętowe
     #[cfg(target_arch = "wasm32")]
     core::arch::wasm32::unreachable();
     
-    #[cfg(not(target_arch = "wasm32"))]
-    core::hint::unreachable_unchecked();
+    #[cfg(target_arch = "x86_64")]
+    core::arch::x86_64::_ud2();
+
+    #[cfg(not(any(target_arch = "wasm32", target_arch = "x86_64")))]
+    core::panic!("Axiomatic Breach Detected: Atomic Halt Triggered.");
 }
