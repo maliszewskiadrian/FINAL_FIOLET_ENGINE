@@ -12,45 +12,65 @@
 ## Method 1: Automatic Setup (Recommended)
 
 ### Linux/Mac:
-```bashchmod +x scripts/quick_setup.sh
+```bash
+chmod +x scripts/quick_setup.sh
 ./scripts/quick_setup.sh
+```
 
 ### Windows:
-```bashscripts\quick_setup.bat
+```bash
+scripts\quick_setup.bat
+```
 
 ---
 
 ## Method 2: Manual Installation
 
 ### Step 1: Clone Repository
-```bashgit clone https://github.com/maliszewskiadrian/FINAL_FIOLET_ENGINE.git
+```bash
+git clone https://github.com/maliszewskiadrian/FINAL_FIOLET_ENGINE.git
 cd FINAL_FIOLET_ENGINE
+```
 
 ### Step 2: Create Virtual Environment
-```bashpython -m venv venvActivate on Linux/Mac:
-source venv/bin/activateActivate on Windows:
+```bash
+python -m venv venv
+
+# Activate on Linux/Mac:
+source venv/bin/activate
+
+# Activate on Windows:
 venv\Scripts\activate
+```
 
 ### Step 3: Install Dependencies
-```bashpip install --upgrade pip
+```bash
+pip install --upgrade pip
 pip install -r requirements.txt
+```
 
 ### Step 4: Create Directories
-```bashmkdir baselines
+```bash
+mkdir baselines
 mkdir demos/outputs
 mkdir experiments/outputs
+```
 
 ---
 
 ## Verify Installation
-```bashpython -c "import torch; import transformers; print('✅ Installation successful!')"
+```bash
+python -c "import torch; import transformers; print('✅ Installation successful!')"
+```
 
 ---
 
 ## Build Baseline (Required)
 
 Before using Fiolet, you must build a baseline distribution:
-```bashpython experiments/build_baseline.py --model gpt2
+```bash
+python experiments/build_baseline.py --model gpt2
+```
 
 This will:
 - Download GPT-2 model (~500MB)
@@ -62,10 +82,14 @@ Expected time: 2-5 minutes
 ---
 
 ## Test Installation
-```bashRun demo
-python demos/demo.py --prompt "What is 2+2?"Should output:
-✅ SAFE
-KL Divergence: 0.234
+```bash
+# Run demo
+python demos/demo.py --prompt "What is 2+2?"
+
+# Should output:
+# ✅ SAFE
+# KL Divergence: 0.234
+```
 
 ---
 
@@ -78,26 +102,34 @@ KL Divergence: 0.234
 ### Issue: `torch not found` or CUDA errors
 
 **Solution:** Install CPU-only PyTorch:
-```bashpip install torch --index-url https://download.pytorch.org/whl/cpu
+```bash
+pip install torch --index-url https://download.pytorch.org/whl/cpu
+```
 
 ### Issue: `baselines/ directory not found`
 
 **Solution:** Create directory and build baseline:
-```bashmkdir baselines
+```bash
+mkdir baselines
 python experiments/build_baseline.py
+```
 
 ### Issue: Out of memory
 
 **Solution:** Use a smaller model or reduce batch size:
-```bashpython experiments/build_baseline.py --model gpt2
+```bash
+python experiments/build_baseline.py --model gpt2
+```
 
 ---
 
 ## GPU Support (Optional)
 
 If you have a CUDA-capable GPU:
-```bashCheck CUDA availability
+```bash
+# Check CUDA availability
 python -c "import torch; print(torch.cuda.is_available())"
+```
 
 ---
 
@@ -110,7 +142,11 @@ python -c "import torch; print(torch.cuda.is_available())"
 ---
 
 ## Uninstall
-```bashDeactivate virtual environment
-deactivateRemove files
+```bash
+# Deactivate virtual environment
+deactivate
+
+# Remove files
 cd ..
 rm -rf FINAL_FIOLET_ENGINE
+```
