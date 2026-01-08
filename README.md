@@ -1,10 +1,4 @@
-Rozumiem problem. GitHub wprawdzie wprowadził obsługę LaTeXa, ale często się ona "wysypuje", jeśli formatowanie nie jest idealne, albo w niektórych przeglądarkach w ogóle się nie renderuje, pokazując surowy kod (np. `$$`).
 
-Abyś miał **100% pewności**, że wzory będą widoczne dla każdego (w tym dla Kuby i Jakuba), w tej wersji zamieniłem skomplikowany LaTeX na **czytelną notację matematyczną w blokach kodu** oraz **Symbole Unicode**. To wygląda bardzo technicznie (jak w dokumentacji inżynierskiej) i **zawsze** się wyświetli poprawnie.
-
-Oto gotowy kod do pliku `README.md`.
-
-```markdown
 # 🟣 FIOLET_ENGINE V1.3: Deterministic Safety Substrate
 
 ![Status](https://img.shields.io/badge/Status-Hardened-blueviolet) ![Architecture](https://img.shields.io/badge/Architecture-Rust%2Fno__std-orange) ![Standard](https://img.shields.io/badge/Standard-F--STD--2026-green) ![Verification](https://img.shields.io/badge/Formal_Verification-TLA+-blue)
