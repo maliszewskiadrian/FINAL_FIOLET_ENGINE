@@ -1,21 +1,28 @@
 [package]
 name = "fiolet-core"
-version.workspace = true
-authors.workspace = true
-edition.workspace = true
-license.workspace = true
-description = "Deterministic Safety Substrate for AGI/ASI class systems."
+version = "0.1.0"
+edition = "2021"
+authors = ["Adrian Maliszewski"]
+description = "Deterministic Safety Substrate for AI latent space monitoring."
+license = "MIT" # Lub inna, którą wybierzesz
 
 [lib]
 name = "fiolet_core"
 path = "src/lib.rs"
+# staticlib pozwala na linkowanie tego do Pythona/C++ w przyszłości
 crate-type = ["rlib", "staticlib"]
 
 [dependencies]
-# Projekt jest no_std, więc nie potrzebujemy standardowych bibliotek.
-# W przyszłości można tu dodać biblioteki kryptograficzne typu 'zeroize'
+# Projekt jest no_std. 
+# W przyszłości można dodać: 
+# cfg-if = "1.0"
 
 [features]
 default = ["hardened-mode"]
 hardened-mode = [] # Włącza dodatkowe restrykcje bezpieczeństwa
-simd-accel = []    # Funkcja do akceleracji sprzętowej masek
+simd-accel = []    # Funkcja do akceleracji sprzętowej masek 
+
+[profile.release]
+opt-level = 3
+panic = "abort" # Krytyczne dla bezpieczeństwa w no_std
+strip = true    # Usuwa symbole debugowania, zmniejszając binarkę
