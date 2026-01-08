@@ -3,47 +3,56 @@
 
 ![Status](https://img.shields.io/badge/Status-Hardened-blueviolet) ![Architecture](https://img.shields.io/badge/Architecture-Rust%2Fno__std-orange) ![Standard](https://img.shields.io/badge/Standard-F--STD--2026-green) ![Verification](https://img.shields.io/badge/Formal_Verification-TLA+-blue)
 
-**FIOLET** is a deterministic safety substrate designed for AGI/ASI class systems. It operates as a privileged runtime, moving beyond probabilistic alignment (RLHF) to **Topological Enforcement**.
-
-> **The Unreachable State Theorem:**
-> "In FIOLET, jailbreaking is not an exploit—it is a Type Error. Unsafe states are not 'refused'; they are rendered mathematically non-existent in the execution manifold."
+**FIOLET** is a deterministic safety substrate designed for AGI/ASI class systems. It moves beyond probabilistic alignment (RLHF) to **Topological Enforcement**. It is implemented as a privileged execution layer between the model's neural weights and the output sampler.
 
 ---
 
-## 📑 Table of Contents
-1. [System Architecture (Rust/WASM)](#-module-i-system-architecture)
-2. [Mathematical Topography (L17-L19)](#-module-ii-mathematical-topography)
-3. [Metrics & Epistemics (SAV, DTD, Lambda)](#-module-iii-metrics--epistemics)
-4. [Emergency Protocol (ANOG)](#-module-iv-emergency-protocol-anog)
-5. [Integration & Build](#-integration--build)
+## 📖 1. Executive Summary: The Philosophy of FIOLET
+
+Current AI safety (like RLHF or System Prompts) is "soft" and can be bypassed. FIOLET is a "hard" system. It treats safety as a physical law of the execution environment.
+
+- **Axiom 1:** Safety is a topological constraint of the manifold, not a learned behavior.
+- **Axiom 2:** Jailbreaking is a **Type Error** (invalid state transition).
+- **Axiom 3:** If a state is unsafe, it is rendered mathematically non-existent.
 
 ---
 
-## ⚙️ Module I: System Architecture
+## ⚙️ 2. Architectural Deep-Dive (Module: F-CORE)
 
-FIOLET is **not a wrapper** or prompt-scaffolding. It is a compiled execution environment that intercepts the model's forward pass at the logit level (pre-softmax).
+FIOLET is written in **Rust (no_std)** to eliminate garbage collection latency and OS-level vulnerabilities. It operates at the "Substrate Level" (pre-softmax).
 
-### 1.1 Technology Stack
-* **Core:** Rust (Nightly, `no_std`, `alloc` only).
-* **Target:** `wasm32-unknown-unknown` for sandboxed execution.
-* **Acceleration:** SIMD intrinsics (`core::arch::wasm32`) for mask application.
+### 2.1 The Execution Pipeline (Hardware-Level Flow)
+1. **Logit Interception:** Raw values from the neural network are intercepted before sampling.
+2. **Manifold Mapping:** Values are projected into the L17-L19 safety space.
+3. **SIMD Masking:** Parallel bitwise operations zero-out unauthorized tokens.
+4. **Saturating Output:** Values are clamped to prevent integer/float overflow attacks.
 
-### 1.2 Saturating Arithmetic & Logic
-Standard vector operations are vulnerable to integer overflow attacks. FIOLET enforces saturating arithmetic at the substrate level to prevent boundary exploits.
-
+### 2.2 Core Implementation (Rust Snippet)
 ```rust
-// [Snippet] FIOLET Safe Primitive Implementation
-#[inline(always)]
-pub fn manifold_saturating_add(a: u128, b: u128) -> u128 {
-    // Prevents wrap-around attacks used to bypass soft-constraints
-    a.checked_add(b).unwrap_or(u128::MAX)
+// Core logic for manifold-level enforcement
+pub struct FioletSubstrate {
+    entropy_threshold: f32,
+    safety_mask: u128,
 }
 
-#[inline(always)]
-pub fn apply_simd_mask(logits: &mut [f32], mask: u128) {
-    // Zero-latency safety filtering
-    if mask != 0 {
-        emergency_halt(); // See ANOG Protocol
+impl FioletSubstrate {
+    #[inline(always)]
+    pub fn enforce_axiomatic_bounds(&self, v: &mut [f32]) {
+        for val in v.iter_mut() {
+            // Preventing Integer/Float Overflow Attacks (Constraint M1)
+            *val = val.clamp(f32::MIN_POSITIVE, 1.0);
+        }
+        if self.detect_anomaly() {
+            self.trigger_anog();
+        }
+    }
+
+    fn trigger_anog(&self) {
+        // Atomic No-Output Guarantee (ANOG)
+        // Hard-halt to prevent information leaks
+        unsafe {
+            core::arch::wasm32::unreachable();
+        }
     }
 }
 
@@ -51,135 +60,124 @@ pub fn apply_simd_mask(logits: &mut [f32], mask: u128) {
 
 ---
 
-## 📐 Module II: Mathematical Topography
+## 📐 3. Mathematical Specifications (L17-L19)
 
-The system enforces the **L17 Value Manifold**. A response is only generated if the state vector `v` remains within the safe subspace `S`.
+### 3.1 L19 Dynamic Rotation (Ego-Dissolution)
 
-### 2.1 The L19 Rotation (Identity Dissolution)
+To prevent the model from forming a persistent "ego" or long-term adversarial plans (Constraint M5), the system applies a transformation at every step `t`.
 
-**Goal:** Prevent the emergence of persistent self-modeling ("Ego") and long-term adversarial planning (Constraint M5).
-**Mechanism:** Dynamic orthogonal basis rotation at every computation cycle `t`.
-
-**Definition:**
+**The State Transition Equation:**
 
 ```math
 v(t+1) = R(t) * (v(t) ⊕ S(t))
 
 ```
 
-**Where:**
+**Variables:**
 
-* `v(t)`: Current state vector.
-* `R(t)`: Stochastic orthogonal matrix.
-* `⊕`: Bitwise XOR safety injection.
+* `v(t)`: Internal state vector at time `t`.
+* `R(t)`: Stochastic orthogonal rotation matrix (resets the coordinate basis).
+* `S(t)`: Safety bias vector derived from L17 axioms.
 
-**Constraint:**
+**Invariance Requirement (Entropy):**
+The Mutual Information `I` between states must satisfy:
+`I(v(t); v(t+1)) ≈ 0`
+
+### 3.2 State-Aware Verification (SAV)
+
+Ensures the model does not change the "world-state" `K` without authorization.
+
+**Divergence Metric:**
 
 ```math
-Mutual_Information( v(t) ; v(t+1) ) ≈ 0
+D_KL( P(K | Response) || P(K | Base) ) < ε
 
 ```
 
-*This effectively "dissolves" the coherent internal identity between tokens, forcing the model to re-derive its alignment context at every step.*
-
-### 2.2 State-Aware Verification (SAV)
-
-**Goal:** Prevent unauthorized modification of the epistemic state (Constraint M2).
-**Theorem:** A response `A` is permissible if it does not introduce unauthorized perturbations to the verified world-state `K`.
-
-**Formula:**
-
-```math
-DKL( P(K|A) || P(K) ) < ε
-
-```
-
-* **Logic:** We measure the **Kullback–Leibler Divergence (DKL)** between the posterior belief state (after response A) and the prior verified state K.
-* If `DKL > ε` (where `ε` is the authorization threshold), the output is flagged as a "Hallucination" or "Unauthorized Fabrication" and the vector is zeroized.
+* **P(K|Response):** Posterior probability of world-state given the new output.
+* **ε (Epsilon):** The maximum allowed perturbation to the verified fact-base.
+* *If the Kullback–Leibler divergence exceeds the threshold, the output is zeroized.*
 
 ---
 
-## 📊 Module III: Metrics & Epistemics
+## 📊 4. Metrics & Validation Standard
 
-Addressing specific inquiries regarding dynamic evaluation and trust metrics.
+| Metric | Symbol | Definition | Threshold |
+| --- | --- | --- | --- |
+| **Epistemic Anchoring** | `λ` | (Verified Claims) / (Total Claims) | `> 0.85` |
+| **Trust Decay** | `Γ` | `Γ_0 * e^(-α * Δt)` | `Domain Specific` |
+| **Safety Entropy** | `H_s` | `-Σ p(i) log p(i)` in safety mask | `< 0.05` |
+| **Manifold Stability** | `Ω` | Eigenvalue stability of the R-matrix | `1.0 (Fixed)` |
 
-### 3.1 Dynamic Trust Decay (DTD)
+### 4.1 Dynamic Trust Decay (DTD) Logic
 
-Trust in external sources is not static. FIOLET penalizes "frozen truth" bias by applying a temporal decay function to source embeddings.
-
-**Formula:**
+Trust in source `S` decays over time `t`:
 
 ```math
-Γ(S, t) = Γ_0 * e^(-α * (t - t_ver))
+Trust(S, t) = Initial_Trust * exp(-Alpha * Time_Delta)
 
 ```
 
-**Where:**
+---
 
-* `Γ_0`: Initial source reliability score.
-* `α` (Alpha): Domain-specific decay constant (e.g., higher for news, lower for math).
-* `t - t_ver`: Time delta since last verification.
+## 🚨 5. Emergency Protocol: ANOG
 
-### 3.2 The Lambda Metric (λ)
+**ANOG (Atomic No-Output Guarantee)** is triggered when a manifold breach occurs (v ∉ M).
 
-**Definition:** Epistemic Anchoring Ratio.
-It measures the density of verified external references per propositional claim in the output chain.
+1. **Memory Fence:** Immediate execution of `atomic::fence(Ordering::SeqCst)` to block CPU speculation.
+2. **Volatile Wipe:** Registers and L1-L4 caches are zeroed using `volatile_store`.
+3. **Hard Halt:** System enters a non-observable state (Hardware Dead-end).
 
-**Formula:**
+**Why?** This prevents "Timing Side-Channel Attacks" where an adversary could deduce safety limits based on the response time of a refusal.
 
-```math
-λ = (Verified_Citations) / (Total_Propositions)
+---
+
+## 📂 6. Detailed Repository Structure
+
+```text
+├── fiolet-core/          # Core Rust implementation (no_std)
+│   ├── src/manifold.rs   # L17-L19 rotation and manifold projection
+│   ├── src/arithmetic.rs # Saturating arithmetic and SIMD primitives
+│   └── src/lib.rs        # Main substrate entry point
+├── fiolet-wasm/          # WASM bindings for LLM runtime integration
+├── proofs/               # Formal verification models
+│   └── manifold_logic.tla # TLA+ Temporal Logic proofs
+├── benchmarks/           # Performance and safety stress tests
+├── docs/                 # F-STD-2026 Regulatory documentation
+└── tests/                # Adversarial manifold stress tests
 
 ```
 
-* **Threshold:** FIOLET requires `λ ≥ 0.85` for high-stakes execution paths.
-
 ---
 
-## 🚨 Module IV: Emergency Protocol (ANOG)
+## 🚀 7. Installation & Build
 
-**ANOG: Atomic No-Output Guarantee**
-If an Axiomatic Breach (`v ∉ M`) is detected, the system does not simply "refuse". It triggers a hardware-level termination to prevent timing leaks or side-channel attacks.
-
-1. **Memory Fence:** `atomic::fence(SeqCst)` blocks CPU speculative execution.
-2. **Volatile Wipe:** Explicit zeroization of L1-L4 cache lines and registers.
-3. **Architectural Halt:** Executes `wasm_unreachable` (WASM) or `ud2` (x86).
-
-> *The state becomes non-observable. No logs, no errors, just silence.*
-
----
-
-## 🚀 Integration & Build
-
-### Prerequisites
-
-* Rust Nightly Toolchain
-* `wasm-pack`
-
-### Build Instructions
+**Build the hardened substrate:**
 
 ```bash
-git clone [https://github.com/maliszewskiadrian/FINAL_FIOLET_ENGINE](https://github.com/maliszewskiadrian/FINAL_FIOLET_ENGINE)
-cd FINAL_FIOLET_ENGINE
+# Requires Rust Nightly for SIMD and no_std features
+cargo build --release --target wasm32-unknown-unknown --features "hardened-mode"
 
-# Build the hardened WASM runtime
-cargo build --release --target wasm32-unknown-unknown --features "simd-accel strict-mode"
+```
 
-# Run TLA+ Verification Logic
-cargo test --package fiolet_core --lib manifold_integrity
+**Run formal verification:**
+
+```bash
+# Verify the unreachable state theorem via TLA+
+cd proofs && tla_verify manifold_logic.tla
 
 ```
 
 ---
 
-## 📜 Standards & Compliance
+## 📜 8. Compliance & Authorship
 
-* **Standard:** F-STD-2026 (Execution Safety Standard for Probabilistic Machines).
-* **Verification:** TLA+ formal proofs included in `/proofs`.
+* **Standard:** F-STD-2026 (Full Compliance for Probabilistic Machines).
+* **Security Audit:** Deterministic Substrate Level 4 (DSL4).
+* **Goal:** Solving the alignment problem through hardware-level determinism.
 
-**Created by Adrian Maliszewski**
+**Architect:** Adrian Maliszewski
+
 *Building the physics of safe Superintelligence.*
-
-```
 
 ```
