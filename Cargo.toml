@@ -1,18 +1,20 @@
-[package]
-name = "fiolet_engine"
-version = "1.2.0"
+[workspace]
+resolver = "2"
+members = [
+    "fiolet-core",
+]
+
+[workspace.package]
+version = "0.1.3"
+authors = ["Adrian Maliszewski"]
 edition = "2021"
-authors = ["Adrian Maliszewski <maliszewskiadrian01@gmail.com>"]
-description = "Deterministic Safety Substrate for AGI/ASI"
-
-[lib]
-crate-type = ["cdylib", "rlib"]
-
-[dependencies]
-# Używamy tylko lekkich zależności kompatybilnych z WASM/no_std
-blake3 = { version = "1.5", default-features = false } # Do haszowania PCO
+license = "MIT"
+repository = "https://github.com/maliszewskiadrian/FINAL_FIOLET_ENGINE"
 
 [profile.release]
+# Optymalizacje pod maksymalne bezpieczeństwo i szybkość
 opt-level = 3
-lto = true
-panic = "abort" # Architektura "Hard Fail"
+panic = "abort" # Wymagane dla bezpieczeństwa (zatrzymuje proces natychmiast)
+lto = true      # Link Time Optimization (lepsza wydajność)
+codegen-units = 1
+strip = true    # Usuwa symbole debugowania (mniejszy binarny "ślad")
