@@ -1,28 +1,22 @@
 [package]
-name = "fiolet-core"
+name = "fiolet_rust"
 version = "0.1.0"
 edition = "2021"
 authors = ["Adrian Maliszewski"]
-description = "Deterministic Safety Substrate for AI latent space monitoring."
-license = "MIT" # Lub inna, którą wybierzesz
+description = "High-performance safety substrate for FIOLET Engine"
 
 [lib]
-name = "fiolet_core"
-path = "src/lib.rs"
-# staticlib pozwala na linkowanie tego do Pythona/C++ w przyszłości
-crate-type = ["rlib", "staticlib"]
+# To jest kluczowe - tworzy bibliotekę dynamiczną dla Pythona
+name = "fiolet_rust"
+crate-type = ["cdylib"]
 
 [dependencies]
-# Projekt jest no_std. 
-# W przyszłości można dodać: 
-# cfg-if = "1.0"
-
-[features]
-default = ["hardened-mode"]
-hardened-mode = [] # Włącza dodatkowe restrykcje bezpieczeństwa
-simd-accel = []    # Funkcja do akceleracji sprzętowej masek 
+# PyO3 to most między Rustem a Pythonem
+pyo3 = { version = "0.20", features = ["extension-module"] }
+# Dodajemy bibliotekę do szybkich obliczeń wektorowych
+ndarray = "0.15"
 
 [profile.release]
 opt-level = 3
-panic = "abort" # Krytyczne dla bezpieczeństwa w no_std
-strip = true    # Usuwa symbole debugowania, zmniejszając binarkę
+lto = true
+codegen-units = 1
