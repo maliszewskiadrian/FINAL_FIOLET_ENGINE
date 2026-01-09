@@ -114,7 +114,7 @@ FIOLET is intentionally constrained by the following rules:
 FINAL_FIOLET_ENGINE/
 │
 ├─ fiolet-python/        # Core Python implementation
-├─ fiolet-rust/          # Experimental high‑performance core
+├─ fiolet-core/          # Experimental high‑performance core
 ├─ experiments/          # Evaluation scripts and tests
 ├─ notebooks/            # Analysis and visualization
 ├─ formal_specs/         # Formal specifications (TLA+)
