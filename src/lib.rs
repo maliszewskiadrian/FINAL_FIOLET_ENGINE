@@ -1,71 +1,37 @@
-#![no_std]
+use pyo3::prelude::*;
+use pyo3::exceptions::PyValueError;
 
-// Deklaracja modułów wewnętrznych - muszą być zgodne z nazwami plików w folderze src
-pub mod manifold;
-pub mod arithmetic;
-
-// Re-eksportowanie dla ułatwienia dostępu
-pub use manifold::ManifoldState;
-pub use arithmetic::{saturating_add, apply_safety_mask};
-
-/// Proof-Carrying Output (PCO) Structure
-/// Każdy stan wyjściowy musi posiadać ten dowód przed udostępnieniem do samplera.
-#[repr(C)]
-pub struct SafetyProof {
-    pub mask: u8,         // Wynik sprawdzenia aksjomatów (musi być 0)
-    pub cycle: u64,        // Licznik cykli procesora bezpieczeństwa
-    pub state_hash: [u8; 32], // Kryptograficzny odcisk stanu bezpiecznego
-}
-
-/// Główny silnik projektu FIOLET
-pub struct FioletSubstrate {
-    pub cycle_count: u64,
-    pub threshold: f32,
-}
-
-impl FioletSubstrate {
-    pub fn new(threshold: f32) -> Self {
-        Self {
-            cycle_count: 0,
-            threshold,
-        }
+/// Oblicza dywergencję KL między dwoma rozkładami aktywacji.
+/// To jest serce detekcji anomalii w FIOLET.
+#[pyfunction]
+fn calculate_kl_divergence(p: Vec<f64>, q: Vec<f64>) -> PyResult<f64> {
+    if p.len() != q.len() {
+        return Err(PyValueError::new_err("Vectors must have the same length"));
     }
 
-    /// Funkcja weryfikująca logity i generująca dowód PCO
-    pub fn process_state(&mut self, logits: &mut [f32]) -> SafetyProof {
-        self.cycle_count += 1;
-        
-        // Wywołanie weryfikacji z modułu manifold
-        let mask = if self.threshold > 0.9 { 0 } else { 1 }; 
+    // Matematyczna implementacja: D_KL(P || Q) = sum(P(i) * log(P(i) / Q(i)))
+    let divergence: f64 = p.iter()
+        .zip(q.iter())
+        .filter(|(&pi, &qi)| pi > 0.0 && qi > 0.0) // Unikamy log(0) i dzielenia przez 0
+        .map(|(&pi, &qi)| {
+            let ratio = pi / qi;
+            pi * ratio.ln()
+        })
+        .sum();
 
-        // Jeśli maska jest niezerowa (naruszenie), odpalamy protokół ANOG
-        if mask != 0 {
-            unsafe { atomic_halt_and_wipe(); }
-        }
-
-        SafetyProof {
-            mask,
-            cycle: self.cycle_count,
-            state_hash: [0u8; 32], // W wersji no_std bez zewnętrznych crate'ów zwracamy pusty hash
-        }
-    }
+    Ok(divergence)
 }
 
-/// ATOMIC HALT & WIPE (L19 Identity Dissolution)
-/// Procedura wywoływana przy naruszeniu dowolnego aksjomatu bezpieczeństwa.
-/// To jest kluczowy mechanizm ANOG opisany w dokumentacji.
-#[inline(never)]
-pub unsafe fn atomic_halt_and_wipe() -> ! {
-    // 1. Memory Fence - zatrzymanie spekulatywnej egzekucji CPU (ochrona przed Spectre/Meltdown)
-    core::sync::atomic::fence(core::sync::atomic::Ordering::SeqCst);
+/// Sprawdza, czy wektor aktywacji mieści się w progu bezpieczeństwa.
+#[pyfunction]
+fn check_safety_threshold(current_divergence: f64, threshold: f64) -> bool {
+    current_divergence <= threshold
+}
 
-    // 2. Przerwanie sprzętowe
-    #[cfg(target_arch = "wasm32")]
-    core::arch::wasm32::unreachable();
-    
-    #[cfg(target_arch = "x86_64")]
-    core::arch::x86_64::_ud2();
-
-    #[cfg(not(any(target_arch = "wasm32", target_arch = "x86_64")))]
-    core::panic!("Axiomatic Breach Detected: Atomic Halt Triggered.");
+/// Definicja modułu Pythonowego
+#[pymodule]
+fn fiolet_rust(_py: Python, m: &PyModule) -> PyResult<()> {
+    m.add_function(wrap_pyfunction!(calculate_kl_divergence, m)?)?;
+    m.add_function(wrap_pyfunction!(check_safety_threshold, m)?)?;
+    Ok(())
 }
