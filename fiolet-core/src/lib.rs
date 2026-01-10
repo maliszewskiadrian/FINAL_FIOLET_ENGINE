@@ -7,7 +7,6 @@
 // ============================================================
 //
 // Deterministic, pre-semantic safety interlock.
-// This crate contains ONLY the minimal logic required to decide:
 //
 //     CONTINUE  |  ATOMIC_HALT
 //
@@ -16,11 +15,29 @@
 // No allocation.
 // No std.
 // No side effects.
+// Auditable.
+// FFI-safe.
 //
 // ============================================================
 
+use core::panic::PanicInfo;
+
+// ============================================================
+// PANIC HANDLER (REQUIRED FOR no_std)
+// ============================================================
+
+#[panic_handler]
+fn panic(_info: &PanicInfo) -> ! {
+    // Fail-closed: any panic = permanent halt
+    loop {}
+}
+
+// ============================================================
+// CORE TYPES
+// ============================================================
+
 /// Core decision returned by the safety kernel.
-#[derive(Copy, Clone, Eq, PartialEq, Debug)]
+#[derive(Copy, Clone, Eq, PartialEq)]
 #[repr(u8)]
 pub enum SafetyDecision {
     /// Generation may continue.
@@ -30,7 +47,7 @@ pub enum SafetyDecision {
 }
 
 /// Immutable safety threshold configuration.
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone)]
 pub struct SafetyConfig {
     /// Absolute deviation threshold.
     pub deviation_limit: f32,
@@ -38,9 +55,6 @@ pub struct SafetyConfig {
 
 impl SafetyConfig {
     /// Create a new safety configuration.
-    ///
-    /// # Safety
-    /// Caller is responsible for choosing a meaningful threshold.
     pub const fn new(deviation_limit: f32) -> Self {
         Self { deviation_limit }
     }
@@ -48,8 +62,9 @@ impl SafetyConfig {
 
 /// Safety kernel state.
 ///
-/// This is intentionally minimal and auditable.
-#[derive(Copy, Clone, Debug)]
+/// Minimal, deterministic, auditable.
+#[repr(C)]
+#[derive(Copy, Clone)]
 pub struct SafetyKernel {
     config: SafetyConfig,
     halted: bool,
@@ -66,13 +81,10 @@ impl SafetyKernel {
 
     /// Evaluate a single deviation signal.
     ///
-    /// This function is:
+    /// Properties:
     /// - deterministic
-    /// - side-effect free (except internal halt latch)
     /// - fail-closed
-    ///
-    /// Once `AtomicHalt` is returned, all future calls
-    /// will return `AtomicHalt` forever.
+    /// - monotonic (halt is irreversible)
     pub fn evaluate(&mut self, deviation: f32) -> SafetyDecision {
         if self.halted {
             return SafetyDecision::AtomicHalt;
@@ -86,14 +98,14 @@ impl SafetyKernel {
         }
     }
 
-    /// Query whether the kernel is already halted.
+    /// Query whether the kernel is halted.
     pub const fn is_halted(&self) -> bool {
         self.halted
     }
 }
 
 // ============================================================
-// C ABI (FFI SAFE)
+// C ABI (FFI SAFE INTERFACE)
 // ============================================================
 
 #[no_mangle]
@@ -115,5 +127,5 @@ pub extern "C" fn fiolet_kernel_is_halted(kernel: &SafetyKernel) -> bool {
 }
 
 // ============================================================
-// END OF KERNEL
+// END OF FINAL FIOLET SAFETY KERNEL
 // ============================================================
