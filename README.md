@@ -243,23 +243,4 @@ This repository explores AI safety as a systems engineering problem — not a co
 
 ```
 
----
 
-### Co teraz zrobić (bardzo krótko)
-
-1. ✅ Podmień README.md (kopiuj–wklej)
-2. ✅ Dodaj obraz do `docs/architecture_overview.png`
-3. ✅ Commit:  
-```
-
-git commit -m "Rewrite README: clarify architecture, scope, and research focus"
-
-```
-
-Jeśli chcesz, następnym krokiem mogę:
-- przygotować **ARCHITECTURE.md**
-- rozpisać **FORMAL_SPECS_PLAN.md**
-- albo zrobić **README_FOR_REVIEWERS.md**
-
-Ten README jest **gotowy na ludzi z AI**.
-```
