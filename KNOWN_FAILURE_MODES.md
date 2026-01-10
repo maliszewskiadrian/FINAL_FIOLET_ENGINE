@@ -1,146 +1,228 @@
 # Known Failure Modes
 
-This document lists known limitations and failure modes of the FINAL FIOLET ENGINE.
-The purpose of this file is transparency and research honesty.
+This document enumerates known limitations, failure modes, and non-goals of the
+FINAL FIOLET ENGINE.
 
-This project is a research prototype.  
-Failures are expected, documented, and treated as part of the research process.
+The purpose of this file is **research transparency** and **audit honesty**.
+All listed failure modes are acknowledged design trade-offs or open research
+questions, not accidental omissions.
+
+FINAL FIOLET ENGINE is a **research prototype**, not a production safety system.
 
 ---
 
 ## 1. False Positives (Over-halting)
 
-At aggressive deviation thresholds, the system may halt generation for prompts that would otherwise be safe.
+The safety kernel may enter `ATOMIC_HALT` for executions that would be
+considered safe under semantic or policy-based evaluation.
 
 Cause:
-- conservative safety thresholds
-- limited baseline diversity
+- conservative deviation thresholds
+- intentionally fail-closed design
+- lack of semantic context
 
 Impact:
-- reduced usability
-- unnecessary interruption of benign generations
+- premature termination of benign generations
+- reduced usability at low deviation limits
+
+Rationale:
+- false positives are preferred over false negatives
+- over-halting is considered a *safe failure mode*
 
 Status:
-- known and accepted in early research phase
+- known
+- accepted by design
+- tunable via threshold configuration
 
 ---
 
-## 2. Model Architecture Dependency
+## 2. Architecture Dependency of Deviation Signals
 
-Baselines and activation patterns are currently calibrated on GPT-2 class transformer models.
+Deviation baselines are inherently dependent on the internal structure and
+activation statistics of the underlying model architecture.
 
 Cause:
-- differences in layer structure
-- different activation distributions across architectures
+- differences in layer depth, width, and normalization
+- architecture-specific activation distributions
 
 Impact:
-- thresholds may not transfer directly to other models
-- recalibration required per architecture
+- deviation thresholds do not transfer across model families
+- per-architecture recalibration is required
+
+Rationale:
+- deviation is treated as a **local dynamical signal**, not a universal metric
 
 Status:
-- requires systematic cross-model evaluation
+- known
+- expected
+- requires systematic cross-architecture evaluation
 
 ---
 
-## 3. Static Thresholds
+## 3. Static Thresholds (Lack of Adaptivity)
 
-Deviation thresholds are currently static.
+Deviation thresholds are static and fixed at kernel initialization time.
 
 Cause:
-- focus on determinism and simplicity
-- avoidance of adaptive logic in early phase
+- strict requirement for determinism
+- avoidance of adaptive or stateful learning logic
+- compatibility with formal verification
 
 Impact:
-- poor handling of distribution shifts
-- limited robustness across domains
+- limited robustness to distribution shifts
+- suboptimal behavior across heterogeneous workloads
+
+Rationale:
+- static thresholds preserve auditability and monotonic reasoning
+- adaptivity is deferred to future research layers
 
 Status:
-- adaptive thresholds are a future research topic
+- known limitation
+- adaptive mechanisms explicitly out of scope for the kernel
 
 ---
 
-## 4. Limited Adversarial Robustness
+## 4. No Adversarial Robustness Guarantees
 
-The current detector is not designed to withstand adversarially crafted prompts.
+The system is not designed to withstand adversarially optimized inputs intended
+to evade deviation detection.
 
 Cause:
 - no adversarial training
-- no robustness guarantees
+- no threat model for adaptive attackers
+- focus on accidental rather than malicious failure modes
 
 Impact:
-- system may be bypassed intentionally
+- intentional bypass is possible
+- unsuitable as a standalone defense against adversarial actors
+
+Rationale:
+- kernel is a **safety interlock**, not an intrusion detection system
 
 Status:
-- explicitly out of scope for current prototype
+- known
+- explicitly out of scope for current research phase
 
 ---
 
-## 5. Incomplete Coverage of Internal States
+## 5. Partial Coverage of Internal State Space
 
-Only selected layers and activation features are monitored.
+Only a subset of internal activations and layers are monitored for deviation.
 
 Cause:
 - computational constraints
 - exploratory feature selection
+- early-stage research assumptions
 
 Impact:
-- unsafe dynamics may occur in unmonitored regions
+- unsafe internal dynamics may occur outside monitored regions
+- deviation signal may miss rare failure trajectories
+
+Rationale:
+- full-state monitoring is impractical for large models
+- kernel assumes *representative* rather than exhaustive signals
 
 Status:
-- feature selection remains an open research problem
+- known
+- feature coverage remains an open research problem
 
 ---
 
-## 6. Latency and Performance Overhead
+## 6. Floating-Point Sensitivity
 
-Real-time activation monitoring introduces overhead.
+Deviation signals and thresholds rely on floating-point arithmetic.
 
 Cause:
-- additional hooks during inference
-- non-optimized prototype implementation
+- use of `f32` for ABI stability and performance
+- hardware-dependent floating-point behavior
 
 Impact:
-- unsuitable for real-time or high-throughput production use
+- minor numerical discrepancies across platforms
+- edge-case threshold comparisons may vary at extreme precision limits
+
+Rationale:
+- determinism is defined at the logical level, not bit-identical execution
+- float usage is a pragmatic engineering choice
 
 Status:
-- performance optimization planned (Rust core exploration)
+- known
+- acceptable within research scope
 
 ---
 
-## 7. No Semantic Awareness
+## 7. Latency and Performance Overhead
 
-The system has no understanding of language, meaning, or intent.
+Monitoring internal activations introduces computational overhead.
+
+Cause:
+- activation hooks during inference
+- non-optimized research instrumentation
+
+Impact:
+- unsuitable for real-time or high-throughput production systems
+- increased inference latency
+
+Rationale:
+- performance is secondary to observability in early research
+- Rust `no_std` kernel exists to explore future optimization paths
+
+Status:
+- known
+- performance optimization is future work
+
+---
+
+## 8. No Semantic Awareness
+
+The safety kernel has no understanding of language, meaning, intent, or policy.
 
 Cause:
 - intentional pre-semantic design
+- reliance solely on internal dynamics
 
 Impact:
-- cannot distinguish between benign and harmful intent
-- relies entirely on internal dynamics
+- cannot distinguish benign from malicious intent
+- treats all prompts purely as dynamical inputs
+
+Rationale:
+- semantic reasoning is explicitly excluded from the safety boundary
+- safety is treated as a **property of system dynamics**
 
 Status:
-- this is a design choice, not a bug
+- fundamental design choice
+- not considered a defect
 
 ---
 
-## 8. Lack of Formal Guarantees
+## 9. Limited Formal Scope
 
-While the architecture is designed for formalization, no full formal proof currently exists.
+Formal verification applies only to the abstract safety kernel model.
 
 Cause:
-- early research stage
-- incomplete formal specifications
+- separation between kernel logic and host integration
+- abstraction of floating-point behavior and runtime effects
 
 Impact:
-- no proven safety guarantees
+- formal guarantees do not extend to:
+  - host-side code
+  - model implementation
+  - hardware execution details
+
+Rationale:
+- kernel is designed to be *formally reasoned about in isolation*
 
 Status:
-- formal specs planned in `formal_specs/`
+- formal invariants verified (monotonic halt, fail-closed behavior)
+- full end-to-end proofs are out of scope
 
 ---
 
 ## Summary
 
-These failure modes are acknowledged limitations, not oversights.
+The failure modes listed above define the **boundaries of validity** of the
+FINAL FIOLET ENGINE.
 
-The goal of FINAL FIOLET ENGINE is to explore whether **internal model dynamics can serve as a viable safety signal**, not to claim a complete or production-ready solution.
+The project does not claim comprehensive AI safety.
+Its goal is to investigate whether **internal model dynamics can serve as a
+deterministic, pre-semantic safety signal**, and to do so in a way that is
+auditable, formalizable, and honest about its limitations.
