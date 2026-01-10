@@ -2,60 +2,63 @@
 
 ![Status](https://img.shields.io/badge/status-research%20prototype-blue)
 
-**A pre-semantic safety interlock for generative language models**
+A pre-semantic safety interlock for generative language models.
 
 ---
 
-## What this project is
+## Overview
 
-FINAL FIOLET ENGINE is an experimental **AI safety research project** focused on stopping unsafe generations **before text is produced**.
+FINAL FIOLET ENGINE is an experimental AI safety research project focused on detecting and interrupting unsafe behavior in language models **before text is generated**.
 
-FIOLET does **not** analyze meaning, intent, or policy rules.  
-Instead, it monitors **internal neural network activations** of a language model during generation and interrupts execution when the model’s internal dynamics leave a defined safe operating region.
+Instead of analyzing generated content, the system monitors **internal neural activations** during inference and halts generation when the model enters a statistically abnormal or unsafe internal state.
 
-This is not content moderation.  
-This is a **safety circuit breaker**.
+This project treats AI safety as a **systems engineering and control problem**, not a content moderation task.
 
 ---
 
-## Why this exists
+## Motivation
 
-Most AI safety systems operate *after* generation:
+Most existing safety mechanisms operate after generation:
 
-```
+model → generated text → analysis → block
 
-model → text → analysis → block
+csharp
+Skopiuj kod
 
-```
+At that point, the model has already reached an unsafe internal configuration.
 
-At that point, the model has already reached an unsafe internal state.
+FIOLET moves safety upstream:
 
-FIOLET shifts safety **upstream**:
+prompt → internal activations → safety decision → continue | ATOMIC HALT
 
-```
+yaml
+Skopiuj kod
 
-prompt → activations → safety decision → continue | halt
+Core assumption:
 
-```
-
-The core assumption is simple:
-
-> If a model reaches an unsafe internal state, blocking the output is already too late.
+Unsafe outputs are symptoms.  
+Unsafe internal states are the cause.
 
 ---
 
-## Core idea
+## Core concept
 
-During generation, FIOLET continuously monitors selected layer activations and compares them against a statistically defined baseline of safe behavior.
+During token generation, FIOLET performs:
 
-If deviation exceeds a configured threshold, the system triggers **ATOMIC HALT** — an immediate, irreversible stop of generation.
+1. Activation monitoring  
+   Selected internal layers of the model are observed in real time.
 
-Key properties:
-- no keyword filtering
-- no semantic classification
-- no policy rules
-- no model fine-tuning
-- deterministic behavior
+2. Deviation detection  
+   Activations are compared against a baseline representing safe operating behavior.
+
+3. Decision logic  
+   If deviation exceeds a defined threshold, the system triggers **ATOMIC HALT** — an immediate and irreversible stop of generation.
+
+The system is:
+- pre-semantic
+- non-invasive (no weight modification)
+- deterministic
+- designed for formal analysis
 
 ---
 
@@ -63,184 +66,116 @@ Key properties:
 
 ![FIOLET Engine architecture](docs/architecture_overview.png)
 
-The diagram shows the pre-semantic safety interlock, where internal model activations are monitored and a decision is made to either continue generation or immediately halt execution.
+The diagram illustrates the safety interlock pipeline: internal activations are monitored continuously, evaluated by a deviation detector, and routed to a decision core that either allows generation to continue or halts execution immediately.
 
 ---
 
 ## Design principles
 
-FIOLET is intentionally constrained by the following rules:
-
-1. **Pre-semantic by design**  
-   No interpretation of language, meaning, or intent.
-
-2. **Fail-closed behavior**  
-   Uncertainty results in stopping, not continuing.
-
-3. **Non-invasive**  
-   No modification of model weights.
-
-4. **Deterministic decisions**  
-   Identical internal dynamics lead to identical outcomes.
-
-5. **Formally analyzable**  
-   Architecture prepared for formal specification and model checking.
+- Pre-semantic only (no language understanding)
+- Fail-closed behavior
+- No fine-tuning of model weights
+- Deterministic decisions
+- Architecture prepared for formal verification
 
 ---
 
 ## Repository structure
 
-```
-
 FINAL_FIOLET_ENGINE/
 │
-├─ fiolet-python/        # Core Python implementation
-├─ fiolet-rust/          # Experimental high-performance core
-├─ experiments/          # Evaluation scripts and tests
-├─ notebooks/            # Analysis and visualization
-├─ formal_specs/         # Formal specifications (TLA+)
-├─ demos/                # Runnable demos
-├─ docs/                 # Documentation and diagrams
+├─ fiolet-python/ # Core Python implementation
+├─ fiolet-rust/ # Experimental Rust performance core
+├─ experiments/ # Evaluation scripts and results
+├─ notebooks/ # Analysis and visualization
+├─ formal_specs/ # Formal specifications (TLA+)
+├─ demos/ # Runnable demos
+├─ docs/ # Diagrams and documentation
 │
 ├─ HOW_TO_READ_THIS_REPO.md
 ├─ KNOWN_FAILURE_MODES.md
 ├─ CONTRIBUTING.md
 └─ README.md
 
-````
+yaml
+Skopiuj kod
 
 ---
 
-## How to read this repository
-
-If this is your first time here, start with:
-
-1. `HOW_TO_READ_THIS_REPO.md` — overview and navigation
-2. `fiolet-python/` — core logic
-3. `demos/basic_demo.py` — runnable example
-4. `KNOWN_FAILURE_MODES.md` — known limitations and risks
-
----
-
-## Current status
-
-**Project stage:** Research prototype
-
-What works:
-- real-time activation monitoring (GPT-2 class models)
-- statistical deviation detection
-- deterministic ATOMIC HALT mechanism
-- reproducible experiments
-
-What is incomplete:
-- formal proofs and invariants
-- large-scale benchmarks
-- adaptive thresholds
-- production-grade API
-
-This project is intentionally published early as a **research and engineering exploration**, not a finished product.
-
----
-
-## Quick start (experimental)
+## Getting started (experimental)
 
 ```bash
 git clone https://github.com/maliszewskiadrian/FINAL_FIOLET_ENGINE.git
 cd FINAL_FIOLET_ENGINE
 
-# create virtual environment
 python -m venv venv
 source venv/bin/activate
 
-# install dependencies
 pip install -r requirements.txt
 
-# run demo
 python demos/basic_demo.py
-````
+This is a research prototype. Expect breaking changes.
 
-⚠️ Expect breaking changes. This is not production software.
+Current status
+Project phase: Research prototype
 
----
+Implemented:
 
-## Known limitations
+activation monitoring
 
-Documented in detail in `KNOWN_FAILURE_MODES.md`, including:
+deviation detection
 
-* high false positives at aggressive thresholds
-* architecture dependence
-* lack of adversarial robustness
-* static thresholds
-* limited model coverage
+deterministic halt mechanism
 
-These limitations are known and accepted as part of the research scope.
+basic experiments on GPT-2 class models
 
----
+Not yet implemented:
 
-## Research direction
+formal proofs and invariants
 
-Open questions:
+large-scale benchmarks
 
-* Which activation features are most predictive of unsafe dynamics?
-* How stable are activation baselines across models?
-* Can thresholds adapt without losing determinism?
-* Which invariants are realistically formalizable?
+adaptive thresholds
 
-This repository represents an **ongoing investigation**, not a closed solution.
+production-grade API
 
----
+Known limitations
+Known failure modes are documented in KNOWN_FAILURE_MODES.md, including:
 
-## Roadmap
+false positives at aggressive thresholds
 
-**Near term**
+dependence on model architecture
 
-* complete formal specs (TLA+)
-* publish model-checking results
-* document experiments more clearly
+lack of adversarial robustness
 
-**Mid term**
+static deviation thresholds
 
-* support larger open-weight models
-* adaptive deviation thresholds
-* deeper failure analysis
+limited evaluation scope
 
-**Long term**
+Research direction
+Open research questions:
 
-* proposal of a standardized LLM Safety Interlock
+which internal features best predict unsafe dynamics
 
----
+stability of baselines across model families
 
-## Philosophy
+trade-offs between adaptivity and determinism
 
-> We do not ask whether a model is allowed to say something.
-> We ask whether it should be allowed to reach that internal state at all.
+feasibility of formal safety guarantees
 
-FIOLET treats safety as a property of **system dynamics**, not language.
+Philosophy
+We do not ask whether a model is allowed to say something.
+We ask whether it should be allowed to reach that internal state at all.
 
----
+Safety is treated as a property of system dynamics, not language.
 
-## Contributing
-
+Contributing
 Contributions are welcome.
-See `CONTRIBUTING.md` for details.
+Please read CONTRIBUTING.md before submitting changes.
 
----
-
-## License
-
+License
 MIT License
 
----
-
-## Author
-
-**Adrian Maliszewski**
-Independent research project in AI safety and systems engineering
-
----
-
-This repository explores AI safety as a systems engineering problem — not a content moderation task.
-
-```
-
-
+Author
+Adrian Maliszewski
+Independent research project focused on AI safety and system-level control of generative models.
