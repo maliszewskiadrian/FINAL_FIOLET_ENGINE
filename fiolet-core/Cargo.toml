@@ -3,41 +3,38 @@ name = "fiolet_core"
 version = "0.1.0"
 edition = "2021"
 authors = ["Adrian Maliszewski <maliszewskiadrian01@gmail.com>"]
-description = "Deterministic pre-semantic safety kernel (ATOMIC HALT) for generative models"
+description = "Deterministic pre-semantic safety kernel (ATOMIC HALT) for generative models — research prototype"
 license = "MIT"
 repository = "https://github.com/maliszewskiadrian/FINAL_FIOLET_ENGINE"
 homepage = "https://github.com/maliszewskiadrian/FINAL_FIOLET_ENGINE"
 documentation = "https://github.com/maliszewskiadrian/FINAL_FIOLET_ENGINE/tree/main/docs"
 readme = "../README.md"
-keywords = ["ai-safety", "safety-kernel", "determinism", "no-std", "formal-verification"]
-categories = ["algorithms", "embedded", "no-std"]
+keywords = ["ai-safety", "safety-kernel", "determinism", "formal-verification"]
+categories = ["algorithms", "science"]
 
 [lib]
 name = "fiolet_core"
 path = "src/lib.rs"
-crate-type = ["cdylib", "staticlib"]
-
-# ==============================
-# DEPENDENCIES
-# ==============================
-[dependencies]
-# Intentionally empty:
-# - no std
-# - no alloc
-# - no external crates
-# This crate is a safety kernel, not a framework.
+crate-type = ["lib", "cdylib", "staticlib"]
 
 # ==============================
 # FEATURES
 # ==============================
 [features]
-default = []
-std = []        # reserved for future host-side tooling ONLY
-simd = []       # reserved for future research, NOT used in kernel
+default = ["std"]
+std = []        # host runtime support (current stage)
+simd = []       # reserved for future research
+
+# ==============================
+# DEPENDENCIES
+# ==============================
+[dependencies]
+# Intentionally minimal.
+# No external crates — kernel remains auditable.
 
 # ==============================
 # DOCS
 # ==============================
 [package.metadata.docs.rs]
-all-features = false
+all-features = true
 rustdoc-args = ["--cfg", "docsrs"]
