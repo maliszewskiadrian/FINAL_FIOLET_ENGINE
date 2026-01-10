@@ -1,22 +1,55 @@
 [package]
-name = "fiolet_rust"
+name = "fiolet-core"
 version = "0.1.0"
 edition = "2021"
-authors = ["Adrian Maliszewski"]
-description = "High-performance safety substrate for FIOLET Engine"
+authors = ["Adrian Maliszewski <adrian.maliszewski@example.com>"]
+description = "Deterministic safety substrate for AGI/ASI using topological alignment"
+license = "MIT"
+repository = "https://github.com/maliszewskiadrian/FINAL_FIOLET_ENGINE"
+homepage = "https://github.com/maliszewskiadrian/FINAL_FIOLET_ENGINE"
+documentation = "https://github.com/maliszewskiadrian/FINAL_FIOLET_ENGINE/tree/main/docs"
+readme = "../README.md"
+keywords = ["ai-safety", "kl-divergence", "formal-verification", "no-std"]
+categories = ["algorithms", "mathematics", "no-std"]
 
 [lib]
-# To jest kluczowe - tworzy bibliotekę dynamiczną dla Pythona
-name = "fiolet_rust"
-crate-type = ["cdylib"]
+name = "fiolet_core"
+path = "src/lib.rs"
+crate-type = ["lib", "cdylib", "staticlib"]
+
+# Example binaries
+[[example]]
+name = "basic_usage"
+path = "examples/basic_usage.rs"
+
+[[example]]
+name = "advanced_monitoring"
+path = "examples/advanced_monitoring.rs"
+required-features = []
+
+# Benchmarks
+[[bench]]
+name = "kl_divergence_bench"
+path = "benches/kl_divergence_bench.rs"
+harness = false
+
+# Integration tests
+[[test]]
+name = "integration_tests"
+path = "../test/integration_tests.rs"
 
 [dependencies]
-# PyO3 to most między Rustem a Pythonem
-pyo3 = { version = "0.20", features = ["extension-module"] }
-# Dodajemy bibliotekę do szybkich obliczeń wektorowych
-ndarray = "0.15"
+# Core dependencies (no_std compatible)
 
-[profile.release]
-opt-level = 3
-lto = true
-codegen-units = 1
+[dev-dependencies]
+# For benchmarking
+criterion = { version = "0.5", features = ["html_reports"] }
+
+[features]
+default = []
+std = []
+simd = []
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
