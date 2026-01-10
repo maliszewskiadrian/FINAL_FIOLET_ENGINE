@@ -1,0 +1,45 @@
+name: Rust CI (Experimental Prototype)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  rust-prototype-check:
+    name: Rust Prototype Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain (stable)
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Detect Rust project
+        id: detect
+        run: |
+          if [ -f Cargo.toml ]; then
+            echo "found=true" >> $GITHUB_OUTPUT
+            echo "Cargo.toml detected — Rust prototype present."
+          else
+            echo "found=false" >> $GITHUB_OUTPUT
+            echo "No Cargo.toml detected — Rust is experimental."
+          fi
+
+      - name: Build Rust prototype
+        if: steps.detect.outputs.found == 'true'
+        run: |
+          echo "Running cargo build (prototype mode)..."
+          cargo build --verbose
+
+      - name: Skip Rust build (experimental state)
+        if: steps.detect.outputs.found == 'false'
+        run: |
+          echo "Rust component is experimental."
+          echo "Skipping build step intentionally."
