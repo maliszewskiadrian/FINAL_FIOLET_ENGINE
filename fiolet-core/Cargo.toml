@@ -2,7 +2,7 @@
 name = "fiolet-core"
 version = "0.1.0"
 edition = "2021"
-authors = ["Adrian Maliszewski <adrian.maliszewski@example.com>"]
+authors = ["Adrian Maliszewski <maliszewskiadrian01@gmail.com>"]
 description = "Deterministic safety substrate for AGI/ASI using topological alignment"
 license = "MIT"
 repository = "https://github.com/maliszewskiadrian/FINAL_FIOLET_ENGINE"
