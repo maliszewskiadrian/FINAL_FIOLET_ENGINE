@@ -87,6 +87,7 @@ FINAL_FIOLET_ENGINE/
 ├─ notebooks/            # Analysis and visualization
 ├─ demos/                # Runnable demos and showcases
 ├─ docs/                 # Diagrams and technical documentation
+│   └─ Safety_Kernel_as_a_Standard.md  # Normative safety standard
 │
 ├─ SafetyKernel.tla      # FORMAL SPEC (TLA+): monotonic halt safety kernel
 ├─ fiolet_core.h         # C ABI contract for the safety kernel (normative)
@@ -95,7 +96,6 @@ FINAL_FIOLET_ENGINE/
 ├─ KNOWN_FAILURE_MODES.md
 ├─ CONTRIBUTING.md
 └─ README.md
-
 ```
 ## Rust implementation note
 The current Rust implementation uses the standard library (std).
