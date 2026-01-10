@@ -1,9 +1,3 @@
-Jasne. Poniżej masz **NOWY, PEŁNY README.md**, **spójny ze wszystkimi zmianami**, napisany **ludzko, technicznie, bez AI-bełkotu**.
-👉 **Możesz go w CAŁOŚCI skopiować i wkleić jako README.md**.
-
----
-
-```markdown
 # FINAL FIOLET ENGINE
 
 ![Status](https://img.shields.io/badge/status-research%20prototype-blue)
