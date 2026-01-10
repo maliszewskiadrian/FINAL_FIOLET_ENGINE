@@ -1,5 +1,11 @@
 // fiolet-core/src/lib.rs
-#![no_std]
+
+//! FIOLET Core — experimental research crate
+//!
+//! NOTE:
+//! This crate currently uses `std`.
+//! `no_std` is a future research direction and is intentionally
+//! NOT enforced at this stage.
 
 pub mod safety;
 pub mod manifold;
