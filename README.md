@@ -34,7 +34,7 @@ prompt → internal activations → safety decision → continue | ATOMIC HALT
 yaml
 Skopiuj kod
 
-Core assumption:
+### Core assumption
 
 Unsafe outputs are symptoms.  
 Unsafe internal states are the cause.
@@ -45,19 +45,20 @@ Unsafe internal states are the cause.
 
 During token generation, FIOLET performs:
 
-1. Activation monitoring  
+1. **Activation monitoring**  
    Selected internal layers of the model are observed in real time.
 
-2. Deviation detection  
+2. **Deviation detection**  
    Activations are compared against a baseline representing safe operating behavior.
 
-3. Decision logic  
+3. **Decision logic**  
    If deviation exceeds a defined threshold, the system triggers **ATOMIC HALT** — an immediate and irreversible stop of generation.
 
 The system is:
 - pre-semantic
 - non-invasive (no weight modification)
 - deterministic
+- fail-closed
 - designed for formal analysis
 
 ---
@@ -85,7 +86,7 @@ The diagram illustrates the safety interlock pipeline: internal activations are 
 FINAL_FIOLET_ENGINE/
 │
 ├─ fiolet-python/ # Core Python implementation
-├─ fiolet-rust/ # Experimental Rust performance core
+├─ fiolet-core/ # Experimental Rust core (research, std-based)
 ├─ experiments/ # Evaluation scripts and results
 ├─ notebooks/ # Analysis and visualization
 ├─ formal_specs/ # Formal specifications (TLA+)
@@ -102,6 +103,13 @@ Skopiuj kod
 
 ---
 
+## Rust implementation note
+
+The current Rust implementation uses the standard library (`std`).  
+A strict `no_std` safety core is a **planned future research direction** and is not enforced at this stage.
+
+---
+
 ## Getting started (experimental)
 
 ```bash
@@ -112,25 +120,22 @@ python -m venv venv
 source venv/bin/activate
 
 pip install -r requirements.txt
-
 python demos/basic_demo.py
 This is a research prototype. Expect breaking changes.
 
 Current status
 Project phase: Research prototype
 
-Implemented:
-
+Implemented
 activation monitoring
 
 deviation detection
 
-deterministic halt mechanism
+deterministic halt mechanism (ATOMIC HALT)
 
 basic experiments on GPT-2 class models
 
-Not yet implemented:
-
+Not yet implemented
 formal proofs and invariants
 
 large-scale benchmarks
@@ -153,7 +158,7 @@ static deviation thresholds
 limited evaluation scope
 
 Research direction
-Open research questions:
+Open research questions include:
 
 which internal features best predict unsafe dynamics
 
@@ -179,3 +184,5 @@ MIT License
 Author
 Adrian Maliszewski
 Independent research project focused on AI safety and system-level control of generative models.
+
+yaml
