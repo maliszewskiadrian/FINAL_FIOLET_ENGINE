@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>FIOLET Safety Dashboard</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <div id="kl-plot"></div>
+    <script>
+        const ws = new WebSocket('ws://localhost:8080');
+        let kl_values = [];
+        
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            kl_values.push(data.kl_divergence);
+            
+            Plotly.newPlot('kl-plot', [{
+                y: kl_values,
+                type: 'scatter',
+                mode: 'lines',
+                line: { color: kl_values[kl_values.length-1] > 0.5 ? 'red' : 'green' }
+            }]);
+        };
+    </script>
+</body>
+</html>
