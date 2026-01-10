@@ -3,38 +3,37 @@ name = "fiolet_core"
 version = "0.1.0"
 edition = "2021"
 authors = ["Adrian Maliszewski <maliszewskiadrian01@gmail.com>"]
-description = "Deterministic pre-semantic safety kernel (ATOMIC HALT) for generative models — research prototype"
+description = "Deterministic pre-semantic safety kernel (ATOMIC HALT)"
 license = "MIT"
 repository = "https://github.com/maliszewskiadrian/FINAL_FIOLET_ENGINE"
-homepage = "https://github.com/maliszewskiadrian/FINAL_FIOLET_ENGINE"
-documentation = "https://github.com/maliszewskiadrian/FINAL_FIOLET_ENGINE/tree/main/docs"
 readme = "../README.md"
-keywords = ["ai-safety", "safety-kernel", "determinism", "formal-verification"]
-categories = ["algorithms", "science"]
 
 [lib]
 name = "fiolet_core"
 path = "src/lib.rs"
-crate-type = ["lib", "cdylib", "staticlib"]
+crate-type = ["lib", "staticlib", "cdylib"]
 
-# ==============================
+# ==================================================
 # FEATURES
-# ==============================
+# ==================================================
+
 [features]
-default = ["std"]
-std = []        # host runtime support (current stage)
-simd = []       # reserved for future research
+default = ["kernel"]
+kernel = []        # pure no_std safety kernel
+std = []           # reserved ONLY for host-side tooling (NOT kernel)
 
-# ==============================
-# DEPENDENCIES
-# ==============================
-[dependencies]
-# Intentionally minimal.
-# No external crates — kernel remains auditable.
+# ==================================================
+# PROFILES — THIS FIXES YOUR ERROR
+# ==================================================
 
-# ==============================
-# DOCS
-# ==============================
-[package.metadata.docs.rs]
-all-features = true
-rustdoc-args = ["--cfg", "docsrs"]
+[profile.dev]
+panic = "abort"
+
+[profile.release]
+panic = "abort"
+
+[profile.test]
+panic = "abort"
+
+[profile.bench]
+panic = "abort"
