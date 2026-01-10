@@ -18,3 +18,9 @@ panic = "abort" # Wymagane dla bezpieczeństwa (zatrzymuje proces natychmiast)
 lto = true      # Link Time Optimization (lepsza wydajność)
 codegen-units = 1
 strip = true    # Usuwa symbole debugowania (mniejszy binarny "ślad")
+[dev-dependencies]
+criterion = "0.5"
+
+[[bench]]
+name = "benchmark"
+harness = false
