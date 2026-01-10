@@ -226,3 +226,90 @@ The project does not claim comprehensive AI safety.
 Its goal is to investigate whether **internal model dynamics can serve as a
 deterministic, pre-semantic safety signal**, and to do so in a way that is
 auditable, formalizable, and honest about its limitations.
+
+## Mapping to Formal Specification
+
+This section maps known failure modes to the scope and limits of the formal
+TLA+ specification (`SafetyKernel.tla`) and the Rust safety kernel
+implementation (`fiolet-core`).
+
+The purpose of this mapping is to make explicit which properties are
+**formally enforced**, which are **explicitly excluded**, and which are
+**outside the safety boundary**.
+
+---
+
+### Formally Enforced Properties
+
+The following properties are fully specified in TLA+ and verified via TLC
+model checking:
+
+| Property | Failure Modes Addressed | Mechanism |
+|--------|-------------------------|-----------|
+| Monotonic halt | Recovery after halt | `MonotonicHalt` invariant |
+| Fail-closed decision | Unsafe continuation after threshold breach | `FailClosed` invariant |
+| Deterministic decision | Non-deterministic safety outcomes | Single transition rule |
+| Irreversibility of halt | Halt bypass | Latched `halted = TRUE` state |
+
+These properties are considered **hard guarantees** of the safety kernel
+model and implementation.
+
+---
+
+### Explicitly Out-of-Scope Failure Modes
+
+The following failure modes are **intentionally excluded** from the formal
+model and are not addressed by the TLA+ specification:
+
+| Failure Mode | Reason for Exclusion |
+|-------------|----------------------|
+| False positives (over-halting) | Treated as safe failures, not violations |
+| Semantic misclassification | Pre-semantic design |
+| Adversarial prompt bypass | No adversarial threat model |
+| Architecture transferability | Deviation treated as local signal |
+| Partial activation coverage | Abstracted deviation input |
+| Floating-point precision effects | Abstracted numeric domain |
+| Performance and latency | Non-functional property |
+
+These exclusions are design decisions, not omissions.
+
+---
+
+### Boundary of the Formal Model
+
+The TLA+ specification models:
+
+- the abstract kernel state (`halted`)
+- deviation input as an unconstrained external signal
+- binary safety decision (`CONTINUE` / `ATOMIC_HALT`)
+
+The following are **outside the formal boundary**:
+
+- host-side code and orchestration
+- neural network implementation
+- floating-point arithmetic behavior
+- timing, concurrency, or hardware effects
+
+---
+
+### Interpretation Guidance
+
+Passing TLC model checking means:
+
+- the kernel **cannot violate its own safety invariants**
+- any failure observed at runtime must originate **outside** the kernel
+  (signal quality, host integration, or model behavior)
+
+Failing to address a failure mode does **not** imply unsoundness of the kernel,
+only that the failure lies beyond the modeled scope.
+
+---
+
+### Summary
+
+The formal specification establishes a **small, trusted core** with strong,
+provable guarantees.
+
+All other behaviors — including false positives, missed signals, and semantic
+errors — are treated as **environmental risks**, not kernel failures.
+
