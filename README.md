@@ -81,6 +81,7 @@ Internal activations are continuously monitored, evaluated by a deviation detect
 FINAL_FIOLET_ENGINE/
 │
 ├─ fiolet-core/          # no_std Rust safety kernel (research, fail-closed)
+├─ fiolet-host/          # std host-side test & simulation harness
 │
 ├─ fiolet-python/        # Python-side research / integration (experimental)
 ├─ experiments/          # Evaluation scripts and deviation experiments
