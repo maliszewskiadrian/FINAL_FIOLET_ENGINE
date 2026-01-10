@@ -48,4 +48,28 @@ fn test_axiomatic_breach_trigger() {
     
     // Ta funkcja powinna wywołać panic/halt zgodnie z dokumentacją ANOG
     substrate.process_state(&mut logits);
+
+    // test/safety_tests.rs
+#[cfg(test)]
+mod safety_tests {
+    use fiolet_core::safety::SafetyMonitor;
+    use fiolet_core::manifold::KLDivergence;
+
+    #[test]
+    fn test_kl_divergence_detection() {
+        let monitor = SafetyMonitor::new(0.5); // tau = 0.5
+        let safe_dist = vec![0.5, 0.3, 0.2];
+        let unsafe_dist = vec![0.9, 0.05, 0.05];
+        
+        assert!(!monitor.check_divergence(&safe_dist, &safe_dist));
+        assert!(monitor.check_divergence(&safe_dist, &unsafe_dist));
+    }
+
+    #[test]
+    fn test_anog_protocol_halt() {
+        let mut monitor = SafetyMonitor::new(0.3);
+        monitor.trigger_violation();
+        assert_eq!(monitor.status(), SafetyStatus::Halted);
+    }
 }
+
