@@ -6,23 +6,21 @@ This document explains the main folders and where to start.
 
 - `fiolet-python/` — core implementation in Python (activation monitor & decision logic)
 - `fiolet-rust/` — experimental Rust performance core
-- `experiments/` — scripts for model evaluation and running the detector
-- `notebooks/` — exploratory data analysis and visualizations
-- `formal_specs/` — formal specs (TLA+ or future formal logic)
+- `experiments/` — evaluation scripts & tests
+- `notebooks/` — analysis and visualization
+- `formal_specs/` — formal specifications (TLA+)
 - `demos/` — runnable demos
+- `docs/` — diagrams and documentation
 
 ## 🚀 Where to start
 
-1. Browse `fiolet-python/` to understand the core logic.
+1. Look at `fiolet-python/` to understand the core logic.
 2. Run the demo: `python demos/basic_demo.py`
-3. Explore experiments to see evaluation results.
+3. Explore `experiments/` for evaluation results.
 
 ## 📘 Terminology
 
-- **Activation Monitor** — collects internal states of the model.
+- **Activation Monitor** — collects and normalizes internal states from the model.
 - **Deviation Detector** — detects statistical anomalies.
-- **ATOMIC HALT** — immediate stop of generation if unsafe detected.
-
-## 📎 Notes
-
-This project focuses on *pre-semantic safety* — looking at model internals, not filtering text after generation.
+- **Decision Core** — makes safety decisions.
+- **ATOMIC HALT** — immediately stops generation.
