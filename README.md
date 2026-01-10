@@ -173,6 +173,43 @@ Safety is treated as a property of system dynamics, not language.
 Contributions are welcome.
 Please read CONTRIBUTING.md before submitting changes.
 
+## Formal verification (TLA+ / TLC)
+
+The FINAL FIOLET safety kernel is accompanied by a formal specification
+and a model-checking configuration that together define and verify its
+core safety guarantees.
+
+### Files
+- `SafetyKernel.tla` — formal TLA+ specification of the safety kernel
+- `SafetyKernel.cfg` — TLC model-checking configuration (invariants and properties)
+
+### Verified properties
+
+The following properties are checked automatically by the TLC model checker:
+
+- **Monotonic halt**  
+  Once the kernel enters the halted state, it can never return to a non-halted state.
+
+- **Fail-closed behavior**  
+  Any deviation exceeding the configured limit forces an immediate
+  and irreversible `ATOMIC_HALT` decision.
+
+- **Reachability of halt**  
+  There exists an execution path in which the system reaches the halted state.
+
+### Scope
+
+The formal model verifies the logical safety properties of the kernel.
+It does not model performance, floating-point precision, or host-side behavior.
+
+### Reproducibility
+
+Any third party can reproduce the verification by running:
+
+tlc SafetyKernel.tla
+
+using the TLA+ tools on the repository root.
+
 ## License
 MIT License
 
