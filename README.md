@@ -91,6 +91,7 @@ FINAL_FIOLET_ENGINE/
 │   └─ Safety_Kernel_as_a_Standard.md  # Normative safety standard
 │
 ├─ SafetyKernel.tla      # FORMAL SPEC (TLA+): monotonic halt safety kernel
+├─ SafetyKernel.cfg      # TLC model checking configuration (invariants, properties)
 ├─ fiolet_core.h         # C ABI contract for the safety kernel (normative)
 │
 ├─ HOW_TO_READ_THIS_REPO.md
