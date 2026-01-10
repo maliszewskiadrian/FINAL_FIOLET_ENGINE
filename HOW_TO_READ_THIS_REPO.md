@@ -24,16 +24,25 @@ If you are new to this repository:
 FINAL_FIOLET_ENGINE/
 
 ─ fiolet-python/ Core Python implementation
+
 ─ fiolet-rust/ Experimental high-performance core
+
 ─ experiments/ Evaluation scripts and result summaries
+
 ─ notebooks/ Analysis, plots, and exploration
+
 ─ formal_specs/ Formal specifications (TLA+ and related)
+
 ─ demos/ Minimal runnable demos
+
 ─ docs/ Diagrams and documentation
 
 ─ HOW_TO_READ_THIS_REPO.md
+
 ─ KNOWN_FAILURE_MODES.md
+
 ─ CONTRIBUTING.md
+
 └─ README.md
 
 
