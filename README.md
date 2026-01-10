@@ -80,13 +80,15 @@ Internal activations are continuously monitored, evaluated by a deviation detect
 ```text
 FINAL_FIOLET_ENGINE/
 │
-├─ fiolet-python/        # Core Python implementation
-├─ fiolet-core/          # Experimental Rust core (research)
-├─ experiments/          # Evaluation scripts and results
+├─ fiolet-core/          # no_std Rust safety kernel (research, fail-closed)
+│
+├─ fiolet-python/        # Python-side research / integration (experimental)
+├─ experiments/          # Evaluation scripts and deviation experiments
 ├─ notebooks/            # Analysis and visualization
-├─ formal_specs/         # Formal specifications (TLA+)
-├─ demos/                # Runnable demos
-├─ docs/                 # Diagrams and documentation
+├─ demos/                # Runnable demos and showcases
+├─ docs/                 # Diagrams and technical documentation
+│
+├─ SafetyKernel.tla      # FORMAL spec (TLA+): monotonic halt safety kernel
 │
 ├─ HOW_TO_READ_THIS_REPO.md
 ├─ KNOWN_FAILURE_MODES.md
