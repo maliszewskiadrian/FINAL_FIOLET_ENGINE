@@ -1,0 +1,37 @@
+name: FIOLET CI (Prototype)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  sanity-check:
+    name: Repository Sanity Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Verify required documentation
+        run: |
+          echo "Running FIOLET prototype sanity checks..."
+
+          REQUIRED_FILES=(
+            "README.md"
+            "CONTRIBUTING.md"
+            "KNOWN_FAILURE_MODES.md"
+            "HOW_TO_READ_THIS_REPO.md"
+          )
+
+          for file in "${REQUIRED_FILES[@]}"; do
+            if [ ! -f "$file" ]; then
+              echo "Missing required file: $file"
+              exit 1
+            fi
+          done
+
+          echo "All required files present."
+          echo "FIOLET CI passed."
