@@ -24,3 +24,7 @@ criterion = "0.5"
 [[bench]]
 name = "benchmark"
 harness = false
+[[test]]
+name = "integration_test"
+path = "test/integration_test.rs"
+
