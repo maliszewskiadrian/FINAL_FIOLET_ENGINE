@@ -1,18 +1,22 @@
 # Known Failure Modes
 
-This file documents situations where the current prototype may fail.
+This file documents cases where the current prototype may fail.
 
-## 1. High False Positives
-At aggressive thresholds, safe prompts may trigger halt.
+## 1. False Positives
+Aggressive thresholds may trigger halts on safe inputs.
 
-## 2. Model architecture dependence
-Current baselines are for GPT-2 class. Other models may need recalibration.
+## 2. Model Dependency
+Current baselines calibrated on GPT-2 class models. Larger or structurally different models may require recalibration.
 
-## 3. No adversarial robustness
-Current detector may be bypassed by crafted inputs.
+## 3. No Adversarial Robustness
+The detector may be bypassed by intentionally crafted inputs.
 
-## 4. Lack of production-grade API
-The CLI/demo is not a full service API.
+## 4. Static Thresholds
+Thresholds are fixed; they do not adapt to distribution shifts or contexts.
 
-## 5. Threshold tuning
-Thresholds are static and may not adapt to domain shifts.
+## 5. Lack of Production API
+Current CLI/demo interface is not a full application API.
+
+## 6. Limited Dataset Scope
+Evaluation data is currently small / synthetic.
+
