@@ -81,7 +81,7 @@ The diagram illustrates the safety interlock pipeline: internal activations are 
 
 ## Repository structure
 
-```text
+```
 FINAL_FIOLET_ENGINE/
 │
 ├─ fiolet-python/        # Core Python implementation
@@ -99,8 +99,7 @@ FINAL_FIOLET_ENGINE/
 
 
 
----
-
+```
 ## Rust implementation note
 
 The current Rust implementation uses the standard library (`std`).  
