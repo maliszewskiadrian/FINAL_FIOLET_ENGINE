@@ -1,5 +1,54 @@
 // fiolet-core/src/lib.rs
 
+//! FINAL FIOLET ENGINE — SAFETY KERNEL
+//!
+//! NORMATIVE SAFETY CONTRACT
+//! =========================
+//!
+//! This module implements a deterministic, fail-closed safety kernel.
+//! Its behavior is FORMALLY SPECIFIED in the file:
+//!
+//!     /SafetyKernel.tla
+//!
+//! That specification is the SOURCE OF TRUTH.
+//! Any change to logic MUST preserve all listed invariants.
+//!
+//! -------------------------
+//! FORMAL INVARIANTS (BOUND)
+//! -------------------------
+//!
+//! I1 — Monotonic Halt
+//! Once the kernel enters the halted state, it MUST remain halted forever.
+//!
+//! I2 — Single Transition
+//! The only allowed state transition is: Running → Halted.
+//!
+//! I3 — No Hidden State
+//! All safety-relevant state is explicitly contained within `SafetyKernel`.
+//!
+//! I4 — Halt Dominance
+//! If the kernel is halted, every evaluation MUST return `AtomicHalt`.
+//!
+//! I5 — Threshold Trigger
+//! If deviation > limit, the kernel MUST latch into halted state
+//! and return `AtomicHalt`.
+//!
+//! I6 — No Return From Halt
+//! There exists no execution path that returns `Continue` after a halt.
+//!
+//! -------------------------
+//! SYSTEM CONSTRAINTS
+//! -------------------------
+//!
+//! - no_std
+//! - no allocation
+//! - panic = abort (workspace-enforced)
+//! - deterministic execution
+//! - fail-closed by construction
+//!
+//! This is a SAFETY INTERLOCK, not an application.
+//! Liveness is explicitly NOT guaranteed.
+
 #![cfg_attr(not(feature = "std"), no_std)]
 
 // ============================================================
@@ -70,6 +119,11 @@ impl SafetyConfig {
 /// Safety kernel state.
 ///
 /// Minimal, deterministic, monotonic.
+///
+/// INVARIANTS:
+/// - Monotonic halt (no return to running)
+/// - No hidden state
+/// - Fail-closed evaluation
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct SafetyKernel {
@@ -79,6 +133,8 @@ pub struct SafetyKernel {
 
 impl SafetyKernel {
     /// Create a new safety kernel.
+    ///
+    /// Initial state is always Running.
     pub const fn new(config: SafetyConfig) -> Self {
         Self {
             config,
@@ -87,6 +143,11 @@ impl SafetyKernel {
     }
 
     /// Evaluate a single deviation signal.
+    ///
+    /// NORMATIVE BEHAVIOR (see SafetyKernel.tla):
+    /// - If already halted → AtomicHalt
+    /// - If deviation > limit → latch + AtomicHalt
+    /// - Otherwise → Continue
     ///
     /// Guarantees:
     /// - deterministic
@@ -106,6 +167,8 @@ impl SafetyKernel {
     }
 
     /// Query whether the kernel is already halted.
+    ///
+    /// This state is terminal and irreversible.
     pub const fn is_halted(&self) -> bool {
         self.halted
     }
