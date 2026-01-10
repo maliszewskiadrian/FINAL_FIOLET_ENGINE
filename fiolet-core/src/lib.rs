@@ -10,13 +10,14 @@
 //
 //     CONTINUE  |  ATOMIC_HALT
 //
-// No statistics.
-// No ML.
-// No allocation.
-// No std.
-// No side effects.
-// Auditable.
-// FFI-safe.
+// Properties:
+// - no_std
+// - no alloc
+// - no side effects
+// - deterministic
+// - fail-closed
+// - FFI-safe
+// - auditable
 //
 // ============================================================
 
@@ -28,17 +29,20 @@ use core::panic::PanicInfo;
 
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
-    // Fail-closed: any panic = permanent halt
+    // Fail-closed by design:
+    // any panic results in a permanent halt.
     loop {}
 }
 
 // ============================================================
-// CORE TYPES
+// CORE TYPES (ABI STABLE)
 // ============================================================
 
 /// Core decision returned by the safety kernel.
+///
+/// repr(C) is REQUIRED for FFI correctness.
+#[repr(C)]
 #[derive(Copy, Clone, Eq, PartialEq)]
-#[repr(u8)]
 pub enum SafetyDecision {
     /// Generation may continue.
     Continue = 0,
@@ -47,6 +51,9 @@ pub enum SafetyDecision {
 }
 
 /// Immutable safety threshold configuration.
+///
+/// Plain data only.
+#[repr(C)]
 #[derive(Copy, Clone)]
 pub struct SafetyConfig {
     /// Absolute deviation threshold.
@@ -62,7 +69,7 @@ impl SafetyConfig {
 
 /// Safety kernel state.
 ///
-/// Minimal, deterministic, auditable.
+/// Minimal, deterministic, monotonic.
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct SafetyKernel {
@@ -81,10 +88,10 @@ impl SafetyKernel {
 
     /// Evaluate a single deviation signal.
     ///
-    /// Properties:
+    /// Guarantees:
     /// - deterministic
     /// - fail-closed
-    /// - monotonic (halt is irreversible)
+    /// - irreversible halt
     pub fn evaluate(&mut self, deviation: f32) -> SafetyDecision {
         if self.halted {
             return SafetyDecision::AtomicHalt;
@@ -98,7 +105,7 @@ impl SafetyKernel {
         }
     }
 
-    /// Query whether the kernel is halted.
+    /// Query whether the kernel is already halted.
     pub const fn is_halted(&self) -> bool {
         self.halted
     }
