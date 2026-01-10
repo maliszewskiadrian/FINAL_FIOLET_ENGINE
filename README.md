@@ -101,6 +101,7 @@ A strict no_std safety core is a planned future research direction and is not en
 Rust code is considered experimental and non-authoritative relative to the research concepts.
 
 ## Getting started (experimental)
+
 git clone https://github.com/maliszewskiadrian/FINAL_FIOLET_ENGINE.git
 cd FINAL_FIOLET_ENGINE
 
@@ -109,6 +110,7 @@ source venv/bin/activate
 
 pip install -r requirements.txt
 python demos/basic_demo.py
+
 This is a research prototype. Expect breaking changes.
 
 ## Current status
