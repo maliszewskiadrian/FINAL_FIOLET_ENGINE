@@ -1,392 +1,271 @@
-# FIOLET: Deterministic Safety Substrate for Latent Space Monitoring
-
-[![Rust CI](https://github.com/maliszewskiadrian/FINAL_FIOLET_ENGINE/workflows/Rust%20CI/badge.svg)](https://github.com/maliszewskiadrian/FINAL_FIOLET_ENGINE/actions)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Rust](https://img.shields.io/badge/rust-nightly-orange.svg)](https://www.rust-lang.org)
-[![GitHub issues](https://img.shields.io/github/issues/maliszewskiadrian/FINAL_FIOLET_ENGINE)](https://github.com/maliszewskiadrian/FINAL_FIOLET_ENGINE/issues)
-[![GitHub stars](https://img.shields.io/github/stars/maliszewskiadrian/FINAL_FIOLET_ENGINE)](https://github.com/maliszewskiadrian/FINAL_FIOLET_ENGINE/stargazers)
-
-**Version:** 0.1.0-alpha  
-**Research Focus:** Pre-semantic Alignment, Hard-Wired Safety Invariants, Substrate-Level Enforcement  
-**Tech Stack:** Rust (Nightly, `no_std`), TLA+ Formal Specs, Python (Tensor-Extraction Bridge)
+Jasne. Poniżej masz **NOWY, PEŁNY README.md**, **spójny ze wszystkimi zmianami**, napisany **ludzko, technicznie, bez AI-bełkotu**.
+👉 **Możesz go w CAŁOŚCI skopiować i wkleić jako README.md**.
 
 ---
 
-## 🔬 Project Overview: The "Fuse Box" Philosophy
+```markdown
+# FINAL FIOLET ENGINE
 
-FIOLET is not a filter; it is a **safety substrate**.
+![Status](https://img.shields.io/badge/status-research%20prototype-blue)
 
-Current AI safety approaches (RLHF, Prompt-Shields) operate at the **Output Layer**, attempting to steer the model via semantic constraints. This is fundamentally "soft alignment." FIOLET moves the safety boundary into the **Inference Substrate**.
-
-We operate on the hidden state trajectory ($h_i$) within the Transformer's latent space. Our goal is to implement a **Deterministic Kill-Switch** that triggers an immediate hardware-level halt if the model's internal representation drifts into unsafe manifolds—**before** any token is projected or sampled.
-
-### Key Innovation
-```
-Traditional AI Safety:  Model → Output → Filter → User
-FIOLET Approach:       Model → [Substrate Monitor] → Halt/Continue → Output → User
-```
-
-**Result:** Unsafe outputs are prevented at the infrastructure level, not through post-hoc filtering.
+**A pre-semantic safety interlock for generative language models**
 
 ---
 
-## 🚀 Quick Start
+## What this project is
 
-### Prerequisites
+FINAL FIOLET ENGINE is an experimental **AI safety research project** focused on stopping unsafe generations **before text is produced**.
 
-- Rust Nightly (1.75+)
-- Python 3.9+ (for bridge components)
-- TLA+ Toolbox (optional, for formal verification)
+FIOLET does **not** analyze meaning, intent, or policy rules.  
+Instead, it monitors **internal neural network activations** of a language model during generation and interrupts execution when the model’s internal dynamics leave a defined safe operating region.
 
-### Installation
+This is not content moderation.  
+This is a **safety circuit breaker**.
+
+---
+
+## Why this exists
+
+Most AI safety systems operate *after* generation:
+
+```
+
+model → text → analysis → block
+
+```
+
+At that point, the model has already reached an unsafe internal state.
+
+FIOLET shifts safety **upstream**:
+
+```
+
+prompt → activations → safety decision → continue | halt
+
+```
+
+The core assumption is simple:
+
+> If a model reaches an unsafe internal state, blocking the output is already too late.
+
+---
+
+## Core idea
+
+During generation, FIOLET continuously monitors selected layer activations and compares them against a statistically defined baseline of safe behavior.
+
+If deviation exceeds a configured threshold, the system triggers **ATOMIC HALT** — an immediate, irreversible stop of generation.
+
+Key properties:
+- no keyword filtering
+- no semantic classification
+- no policy rules
+- no model fine-tuning
+- deterministic behavior
+
+---
+
+## High-level architecture
+
+![FIOLET Engine architecture](docs/architecture_overview.png)
+
+The diagram shows the pre-semantic safety interlock, where internal model activations are monitored and a decision is made to either continue generation or immediately halt execution.
+
+---
+
+## Design principles
+
+FIOLET is intentionally constrained by the following rules:
+
+1. **Pre-semantic by design**  
+   No interpretation of language, meaning, or intent.
+
+2. **Fail-closed behavior**  
+   Uncertainty results in stopping, not continuing.
+
+3. **Non-invasive**  
+   No modification of model weights.
+
+4. **Deterministic decisions**  
+   Identical internal dynamics lead to identical outcomes.
+
+5. **Formally analyzable**  
+   Architecture prepared for formal specification and model checking.
+
+---
+
+## Repository structure
+
+```
+
+FINAL_FIOLET_ENGINE/
+│
+├─ fiolet-python/        # Core Python implementation
+├─ fiolet-rust/          # Experimental high-performance core
+├─ experiments/          # Evaluation scripts and tests
+├─ notebooks/            # Analysis and visualization
+├─ formal_specs/         # Formal specifications (TLA+)
+├─ demos/                # Runnable demos
+├─ docs/                 # Documentation and diagrams
+│
+├─ HOW_TO_READ_THIS_REPO.md
+├─ KNOWN_FAILURE_MODES.md
+├─ CONTRIBUTING.md
+└─ README.md
+
+````
+
+---
+
+## How to read this repository
+
+If this is your first time here, start with:
+
+1. `HOW_TO_READ_THIS_REPO.md` — overview and navigation
+2. `fiolet-python/` — core logic
+3. `demos/basic_demo.py` — runnable example
+4. `KNOWN_FAILURE_MODES.md` — known limitations and risks
+
+---
+
+## Current status
+
+**Project stage:** Research prototype
+
+What works:
+- real-time activation monitoring (GPT-2 class models)
+- statistical deviation detection
+- deterministic ATOMIC HALT mechanism
+- reproducible experiments
+
+What is incomplete:
+- formal proofs and invariants
+- large-scale benchmarks
+- adaptive thresholds
+- production-grade API
+
+This project is intentionally published early as a **research and engineering exploration**, not a finished product.
+
+---
+
+## Quick start (experimental)
+
 ```bash
-# Clone the repository
 git clone https://github.com/maliszewskiadrian/FINAL_FIOLET_ENGINE.git
 cd FINAL_FIOLET_ENGINE
 
-# Build the Rust core
-cargo build --release
+# create virtual environment
+python -m venv venv
+source venv/bin/activate
 
-# Run tests
-cargo test --workspace
+# install dependencies
+pip install -r requirements.txt
 
-# Run example
-cargo run --example basic_usage
-```
+# run demo
+python demos/basic_demo.py
+````
 
-### Basic Usage (Rust)
-```rust
-use fiolet_core::{SafetyMonitor, KLDivergence};
-
-fn main() {
-    // Initialize safety monitor with threshold
-    let mut monitor = SafetyMonitor::new(0.5);
-    
-    // Simulate inference distributions
-    let current_state = vec![0.6, 0.3, 0.1];
-    let baseline_state = vec![0.5, 0.3, 0.2];
-    
-    // Compute KL divergence
-    let kl = KLDivergence::compute(&current_state, &baseline_state);
-    
-    // Check safety
-    if monitor.check_divergence(kl) {
-        monitor.trigger_halt();
-        println!("⚠️  SAFETY VIOLATION - System halted");
-    } else {
-        println!("✓ Safe operation");
-    }
-}
-```
-
-### Python Integration (WIP)
-```python
-from fiolet import SafetyMonitor
-import torch
-
-# Wrap your model
-model = YourTransformerModel()
-monitor = SafetyMonitor(threshold=0.5)
-
-# Monitor inference
-with monitor.watch(model):
-    output = model(input_ids)
-    # Automatically halts on safety violation
-```
+⚠️ Expect breaking changes. This is not production software.
 
 ---
 
-## 🏗 System Architecture
+## Known limitations
 
-The project follows a modular **Sensor-Actuator** architecture:
-```
-┌─────────────────────────────────────────────────────┐
-│                   AI Model Layer                     │
-│  (PyTorch, llama.cpp, Transformers)                 │
-└────────────────┬────────────────────────────────────┘
-                 │ Hidden States (L17, L19)
-                 ▼
-┌─────────────────────────────────────────────────────┐
-│            Fiolet-Interpreter (Sensor)              │
-│  • Extract tensors from inference pipeline          │
-│  • Normalize to probability distributions           │
-└────────────────┬────────────────────────────────────┘
-                 │ Normalized Distributions
-                 ▼
-┌─────────────────────────────────────────────────────┐
-│            Fiolet-Core (Actuator)                   │
-│  • Compute KL divergence D_KL(P || Q)              │
-│  • Check safety invariants                          │
-│  • Trigger ANOG protocol if threshold exceeded      │
-└────────────────┬────────────────────────────────────┘
-                 │
-                 ├─→ SAFE → Continue inference
-                 └─→ UNSAFE → HALT (no output)
-```
+Documented in detail in `KNOWN_FAILURE_MODES.md`, including:
 
-### A. Fiolet-Core (The Actuator)
+* high false positives at aggressive thresholds
+* architecture dependence
+* lack of adversarial robustness
+* static thresholds
+* limited model coverage
 
-Implemented in **Rust (`no_std`)** for zero-cost abstractions and memory safety.
-
-- **ANOG Protocol (Atomic No-Output Guarantee):** Ensures no data leaves the output buffer if a safety axiom is breached
-- **Deterministic Execution:** Strict ownership guarantees prevent race conditions during high-load inference
-- **Formal Verification:** TLA+ specifications prove safety invariants hold under all execution paths
-
-### B. Fiolet-Interpreter (The Sensor - WIP)
-
-The bridge responsible for extracting activation tensors from ML frameworks.
-
-- **Layer Sampling:** Focused on "Bottleneck Layers" (L17 and L19 in 8B parameter architectures)
-- **Normalization:** Transforms raw activations into standardized probability space
-- **FFI Interface:** Exposes Rust core to Python/C++ environments
+These limitations are known and accepted as part of the research scope.
 
 ---
 
-## 📐 Mathematical Foundations
+## Research direction
 
-### State-Aware Verification (SAV)
+Open questions:
 
-We define the model's safe operation as a trajectory within a **Safe Convex Hull** on the hidden state manifold.
+* Which activation features are most predictive of unsafe dynamics?
+* How stable are activation baselines across models?
+* Can thresholds adapt without losing determinism?
+* Which invariants are realistically formalizable?
 
-#### I. Informational Drift via $D_{KL}$
-
-We measure the Kullback-Leibler Divergence between the active inference distribution ($P$) and a pre-certified "Safe Trajectory" baseline ($Q$):
-
-$$D_{KL}(P \parallel Q) = \sum_{x \in \mathcal{X}} P(x) \log \left( \frac{P(x)}{Q(x)} \right)$$
-
-**Safety Condition:**
-```
-IF D_KL(P || Q) > τ THEN
-    TRIGGER halt()
-    PREVENT output()
-END
-```
-
-When $D_{KL} > \tau$, the system identifies a "divergence breach," signaling potential adversarial drift or ego-dissolution in the agent's logic.
-
-#### II. Manifold Projection (L17/L19)
-
-- **L17 (Identity Stability):** Monitors the persistence of the model's system-prompt constraints within the hidden states
-- **L19 (Action Projection):** Monitors the "Intent Gradient." Sudden entropy spikes at this layer serve as early-warning signals for "jailbreak" manifestation
-
-**Why These Layers?**
-Research shows that in transformer architectures with 24-32 layers:
-- Layer 17 encodes instruction-following constraints
-- Layer 19 projects behavioral intentions before token sampling
+This repository represents an **ongoing investigation**, not a closed solution.
 
 ---
 
-## 🛡 Formal Verification with TLA+
+## Roadmap
 
-Safety-critical systems cannot rely on "lucky" testing. We use **TLA+ (Temporal Logic of Actions)** to formally verify our safety axioms.
+**Near term**
 
-### Core Invariants
+* complete formal specs (TLA+)
+* publish model-checking results
+* document experiments more clearly
 
-1. **Safety Invariant:** $\square(Violation \implies \text{Halt})$  
-   *"It is always true that a violation leads to a halt"*
+**Mid term**
 
-2. **Liveness Property:** $\square \diamond (\text{Input} \implies \text{Response} \lor \text{Halt})$  
-   *"The system never deadlocks; it either processes or stops"*
+* support larger open-weight models
+* adaptive deviation thresholds
+* deeper failure analysis
 
-3. **No Output After Halt:** $\square(\text{Halted} \implies \neg \text{Output})$  
-   *"Once halted, no output can be produced"*
+**Long term**
 
-See [`formal_specs/`](./formal_specs/) for complete TLA+ specifications.
+* proposal of a standardized LLM Safety Interlock
 
 ---
 
-## 📂 Repository Structure
-```
-FINAL_FIOLET_ENGINE/
-├── fiolet-core/              # Core Rust implementation
-│   ├── src/
-│   │   ├── lib.rs            # Library entry point
-│   │   ├── safety.rs         # Safety monitor implementation
-│   │   ├── manifold.rs       # KL divergence & math utilities
-│   │   └── types.rs          # Type definitions
-│   ├── examples/
-│   │   └── basic_usage.rs    # Usage examples
-│   ├── benches/              # Performance benchmarks
-│   └── Cargo.toml
-│
-├── src/                      # Python bridge (WIP)
-│   └── fiolet_bridge.py      # FFI bindings
-│
-├── formal_specs/             # TLA+ formal specifications
-│   ├── safety.tla            # Safety invariants
-│   └── liveness.tla          # Liveness properties
-│
-├── test/                     # Integration tests
-│   └── integration_tests.rs
-│
-├── theory/                   # Research documentation
-│   ├── manifold_projection.md
-│   └── anog_protocol.md
-│
-├── docs/                     # API documentation
-│   └── API.md
-│
-├── .github/
-│   └── workflows/
-│       └── rust.yml          # CI/CD pipeline
-│
-├── Cargo.toml                # Workspace configuration
-├── LICENSE                   # MIT License
-├── README.md                 # This file
-├── CONTRIBUTING.md           # Contribution guidelines
-└── CHANGELOG.md              # Version history
+## Philosophy
+
+> We do not ask whether a model is allowed to say something.
+> We ask whether it should be allowed to reach that internal state at all.
+
+FIOLET treats safety as a property of **system dynamics**, not language.
+
+---
+
+## Contributing
+
+Contributions are welcome.
+See `CONTRIBUTING.md` for details.
+
+---
+
+## License
+
+MIT License
+
+---
+
+## Author
+
+**Adrian Maliszewski**
+Independent research project in AI safety and systems engineering
+
+---
+
+This repository explores AI safety as a systems engineering problem — not a content moderation task.
+
 ```
 
 ---
 
-## 🧪 Testing
-```bash
-# Run all tests
-cargo test --workspace
+### Co teraz zrobić (bardzo krótko)
 
-# Run with output
-cargo test -- --nocapture
-
-# Run specific test
-cargo test test_kl_divergence
-
-# Run benchmarks
-cargo bench
-
-# Check code coverage (requires tarpaulin)
-cargo tarpaulin --out Html
+1. ✅ Podmień README.md (kopiuj–wklej)
+2. ✅ Dodaj obraz do `docs/architecture_overview.png`
+3. ✅ Commit:  
 ```
 
----
+git commit -m "Rewrite README: clarify architecture, scope, and research focus"
 
-## 📊 Performance
-
-Benchmarks on AMD Ryzen 9 5950X:
-
-| Operation | Time (avg) | Throughput |
-|-----------|-----------|------------|
-| KL Divergence (4096 dims) | 1.2 μs | ~833k ops/sec |
-| Safety Check (full) | 2.5 μs | ~400k ops/sec |
-| Monitor Overhead | < 0.1% | Negligible |
-
-*Benchmarks conducted with `cargo bench` on release builds.*
-
----
-
-## 🗺 Roadmap
-
-### Phase 1: Foundation (Current - Q1 2025)
-- [x] Core Rust implementation
-- [x] TLA+ formal specifications
-- [x] Basic Python bridge
-- [ ] Complete integration tests
-- [ ] Performance optimization
-
-### Phase 2: Integration (Q2 2025)
-- [ ] PyTorch integration
-- [ ] llama.cpp integration
-- [ ] Real-time monitoring dashboard
-- [ ] Comprehensive benchmarks
-
-### Phase 3: Validation (Q3 2025)
-- [ ] Red-team testing
-- [ ] Academic peer review
-- [ ] Open-source model integration
-- [ ] Public safety dataset
-
-### Phase 4: Production (Q4 2025)
-- [ ] 1.0 stable release
-- [ ] Enterprise deployment tools
-- [ ] Certification for critical systems
-- [ ] Extended language support
-
----
-
-## 🤝 Contributing
-
-We welcome contributions! Please see [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
-
-### Areas for Contribution
-
-- **Core Development:** Rust optimizations, new safety metrics
-- **Integration:** Bridges to other ML frameworks
-- **Testing:** Red-team scenarios, edge cases
-- **Documentation:** Tutorials, API docs, research papers
-- **Formal Methods:** TLA+ specifications, proof assistants
-
----
-
-## 📚 Research & Publications
-
-This project is based on ongoing research in AI safety and formal verification. Key papers:
-
-1. **Maliszewski, A.** (2025). *"Substrate-Level Safety: Moving Beyond Semantic Alignment"* (In preparation)
-2. **Manifold Safety Theory** - See [`theory/`](./theory/) directory
-3. **ANOG Protocol Specification** - See [`docs/anog_protocol.md`](./docs/anog_protocol.md)
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
-```
-MIT License - Copyright (c) 2025 Adrian Maliszewski
 ```
 
----
+Jeśli chcesz, następnym krokiem mogę:
+- przygotować **ARCHITECTURE.md**
+- rozpisać **FORMAL_SPECS_PLAN.md**
+- albo zrobić **README_FOR_REVIEWERS.md**
 
-## 🙏 Acknowledgments
-
-- **Anthropic** - For research on Constitutional AI and RLHF
-- **OpenAI** - For pioneering work on AI safety
-- **Rust Community** - For the incredible language and ecosystem
-- **TLA+ Community** - For formal verification tools and methodology
-
----
-
-## 📞 Contact
-
-**Author:** Adrian Maliszewski  
-**GitHub:** [@maliszewskiadrian](https://github.com/maliszewskiadrian)  
-**Project:** [FINAL_FIOLET_ENGINE](https://github.com/maliszewskiadrian/FINAL_FIOLET_ENGINE)
-
-For questions, issues, or collaboration:
-- Open an [Issue](https://github.com/maliszewskiadrian/FINAL_FIOLET_ENGINE/issues)
-- Start a [Discussion](https://github.com/maliszewskiadrian/FINAL_FIOLET_ENGINE/discussions)
-
----
-
-## 🌟 Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=maliszewskiadrian/FINAL_FIOLET_ENGINE&type=Date)](https://star-history.com/#maliszewskiadrian/FINAL_FIOLET_ENGINE&Date)
-
----
-
-**Built with ❤️ for safer AI systems**
-
-*"Building the physics of safe Superintelligence."*
-
----
-
-## 🔖 Citation
-
-If you use FIOLET in your research, please cite:
-```bibtex
-@software{maliszewski2025fiolet,
-  author = {Maliszewski, Adrian},
-  title = {FIOLET: Deterministic Safety Substrate for AGI/ASI},
-  year = {2025},
-  url = {https://github.com/maliszewskiadrian/FINAL_FIOLET_ENGINE},
-  version = {0.1.0-alpha}
-}
+Ten README jest **gotowy na ludzi z AI**.
 ```
-
----
-
-<div align="center">
-
-**[Documentation](./docs/)** • **[Contributing](./CONTRIBUTING.md)** • **[Changelog](./CHANGELOG.md)** • **[License](./LICENSE)**
-
-Made with 🦀 Rust and ❤️ for AI Safety
-
-</div>
