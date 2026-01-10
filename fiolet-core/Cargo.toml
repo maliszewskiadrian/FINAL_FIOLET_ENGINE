@@ -1,55 +1,43 @@
 [package]
-name = "fiolet-core"
+name = "fiolet_core"
 version = "0.1.0"
 edition = "2021"
 authors = ["Adrian Maliszewski <maliszewskiadrian01@gmail.com>"]
-description = "Deterministic safety substrate for AGI/ASI using topological alignment"
+description = "Deterministic pre-semantic safety kernel (ATOMIC HALT) for generative models"
 license = "MIT"
 repository = "https://github.com/maliszewskiadrian/FINAL_FIOLET_ENGINE"
 homepage = "https://github.com/maliszewskiadrian/FINAL_FIOLET_ENGINE"
 documentation = "https://github.com/maliszewskiadrian/FINAL_FIOLET_ENGINE/tree/main/docs"
 readme = "../README.md"
-keywords = ["ai-safety", "kl-divergence", "formal-verification", "no-std"]
-categories = ["algorithms", "mathematics", "no-std"]
+keywords = ["ai-safety", "safety-kernel", "determinism", "no-std", "formal-verification"]
+categories = ["algorithms", "embedded", "no-std"]
 
 [lib]
 name = "fiolet_core"
 path = "src/lib.rs"
-crate-type = ["lib", "cdylib", "staticlib"]
+crate-type = ["cdylib", "staticlib"]
 
-# Example binaries
-[[example]]
-name = "basic_usage"
-path = "examples/basic_usage.rs"
-
-[[example]]
-name = "advanced_monitoring"
-path = "examples/advanced_monitoring.rs"
-required-features = []
-
-# Benchmarks
-[[bench]]
-name = "kl_divergence_bench"
-path = "benches/kl_divergence_bench.rs"
-harness = false
-
-# Integration tests
-[[test]]
-name = "integration_tests"
-path = "../test/integration_tests.rs"
-
+# ==============================
+# DEPENDENCIES
+# ==============================
 [dependencies]
-# Core dependencies (no_std compatible)
+# Intentionally empty:
+# - no std
+# - no alloc
+# - no external crates
+# This crate is a safety kernel, not a framework.
 
-[dev-dependencies]
-# For benchmarking
-criterion = { version = "0.5", features = ["html_reports"] }
-
+# ==============================
+# FEATURES
+# ==============================
 [features]
 default = []
-std = []
-simd = []
+std = []        # reserved for future host-side tooling ONLY
+simd = []       # reserved for future research, NOT used in kernel
 
+# ==============================
+# DOCS
+# ==============================
 [package.metadata.docs.rs]
-all-features = true
+all-features = false
 rustdoc-args = ["--cfg", "docsrs"]
