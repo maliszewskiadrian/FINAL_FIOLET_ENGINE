@@ -22,8 +22,7 @@ Most existing safety mechanisms operate after generation:
 
 model → generated text → analysis → block
 
-csharp
-Skopiuj kod
+
 
 At that point, the model has already reached an unsafe internal configuration.
 
@@ -31,8 +30,7 @@ FIOLET moves safety upstream:
 
 prompt → internal activations → safety decision → continue | ATOMIC HALT
 
-yaml
-Skopiuj kod
+
 
 ### Core assumption
 
@@ -83,23 +81,23 @@ The diagram illustrates the safety interlock pipeline: internal activations are 
 
 ## Repository structure
 
+```text
 FINAL_FIOLET_ENGINE/
 │
-├─ fiolet-python/ # Core Python implementation
-├─ fiolet-core/ # Experimental Rust core (research, std-based)
-├─ experiments/ # Evaluation scripts and results
-├─ notebooks/ # Analysis and visualization
-├─ formal_specs/ # Formal specifications (TLA+)
-├─ demos/ # Runnable demos
-├─ docs/ # Diagrams and documentation
+├─ fiolet-python/        # Core Python implementation
+├─ fiolet-core/          # Experimental Rust core
+├─ experiments/
+├─ notebooks/
+├─ formal_specs/
+├─ demos/
+├─ docs/
 │
 ├─ HOW_TO_READ_THIS_REPO.md
 ├─ KNOWN_FAILURE_MODES.md
 ├─ CONTRIBUTING.md
 └─ README.md
 
-yaml
-Skopiuj kod
+
 
 ---
 
@@ -121,7 +119,8 @@ source venv/bin/activate
 
 pip install -r requirements.txt
 python demos/basic_demo.py
-This is a research prototype. Expect breaking changes.
+```
+
 
 Current status
 Project phase: Research prototype
@@ -185,4 +184,3 @@ Author
 Adrian Maliszewski
 Independent research project focused on AI safety and system-level control of generative models.
 
-yaml
