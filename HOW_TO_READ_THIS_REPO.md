@@ -1,26 +1,23 @@
-# HOW TO READ THIS REPOSITORY
+# How to Read This Repository
 
-This document explains the main folders and where to start.
+This document explains how the FINAL FIOLET ENGINE repository is structured and how to approach it as a reader.
 
-## 📌 Main folders
+The project is a research prototype.  
+Not all components are equally mature.
 
-- `fiolet-python/` — core implementation in Python (activation monitor & decision logic)
-- `fiolet-rust/` — experimental Rust performance core
-- `experiments/` — evaluation scripts & tests
-- `notebooks/` — analysis and visualization
-- `formal_specs/` — formal specifications (TLA+)
-- `demos/` — runnable demos
-- `docs/` — diagrams and documentation
+---
 
-## 🚀 Where to start
+## Recommended reading order
 
-1. Look at `fiolet-python/` to understand the core logic.
-2. Run the demo: `python demos/basic_demo.py`
-3. Explore `experiments/` for evaluation results.
+If you are new to this repository:
 
-## 📘 Terminology
+1. Read `README.md` for the high-level idea
+2. Read `KNOWN_FAILURE_MODES.md` to understand limitations
+3. Browse `fiolet-python/` for core logic
+4. Run `demos/basic_demo.py`
+5. Explore `experiments/` and `notebooks/` for evaluation and analysis
 
-- **Activation Monitor** — collects and normalizes internal states from the model.
-- **Deviation Detector** — detects statistical anomalies.
-- **Decision Core** — makes safety decisions.
-- **ATOMIC HALT** — immediately stops generation.
+---
+
+## Repository structure overview
+
