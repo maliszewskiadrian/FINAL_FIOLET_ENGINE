@@ -8,6 +8,10 @@ license = "MIT"
 repository = "https://github.com/maliszewskiadrian/FINAL_FIOLET_ENGINE"
 readme = "../README.md"
 
+# ==================================================
+# LIBRARY CONFIGURATION
+# ==================================================
+
 [lib]
 name = "fiolet_core"
 path = "src/lib.rs"
@@ -16,24 +20,14 @@ crate-type = ["lib", "staticlib", "cdylib"]
 # ==================================================
 # FEATURES
 # ==================================================
+#
+# IMPORTANT:
+# - kernel = pure no_std safety kernel
+# - std    = reserved ONLY for host-side tooling
+#           (must NEVER be enabled for kernel builds)
+#
 
 [features]
 default = ["kernel"]
-kernel = []        # pure no_std safety kernel
-std = []           # reserved ONLY for host-side tooling (NOT kernel)
-
-# ==================================================
-# PROFILES — THIS FIXES YOUR ERROR
-# ==================================================
-
-[profile.dev]
-panic = "abort"
-
-[profile.release]
-panic = "abort"
-
-[profile.test]
-panic = "abort"
-
-[profile.bench]
-panic = "abort"
+kernel = []
+std = []
