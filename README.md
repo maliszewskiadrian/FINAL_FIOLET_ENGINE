@@ -22,15 +22,11 @@ Most existing safety mechanisms operate after generation:
 
 model → generated text → analysis → block
 
-
-
 At that point, the model has already reached an unsafe internal configuration.
 
 FIOLET moves safety upstream:
 
 prompt → internal activations → safety decision → continue | ATOMIC HALT
-
-
 
 ### Core assumption
 
@@ -65,7 +61,7 @@ The system is:
 
 ![FIOLET Engine architecture](docs/architecture_overview.png)
 
-The diagram illustrates the safety interlock pipeline: internal activations are monitored continuously, evaluated by a deviation detector, and routed to a decision core that either allows generation to continue or halts execution immediately.
+Internal activations are continuously monitored, evaluated by a deviation detector, and routed to a decision core that either allows generation to continue or halts execution immediately.
 
 ---
 
@@ -81,35 +77,30 @@ The diagram illustrates the safety interlock pipeline: internal activations are 
 
 ## Repository structure
 
-```
+```text
 FINAL_FIOLET_ENGINE/
 │
 ├─ fiolet-python/        # Core Python implementation
-├─ fiolet-core/          # Experimental Rust core
-├─ experiments/
-├─ notebooks/
-├─ formal_specs/
-├─ demos/
-├─ docs/
+├─ fiolet-core/          # Experimental Rust core (research)
+├─ experiments/          # Evaluation scripts and results
+├─ notebooks/            # Analysis and visualization
+├─ formal_specs/         # Formal specifications (TLA+)
+├─ demos/                # Runnable demos
+├─ docs/                 # Diagrams and documentation
 │
 ├─ HOW_TO_READ_THIS_REPO.md
 ├─ KNOWN_FAILURE_MODES.md
 ├─ CONTRIBUTING.md
 └─ README.md
 
-
-
 ```
 ## Rust implementation note
+The current Rust implementation uses the standard library (std).
+A strict no_std safety core is a planned future research direction and is not enforced at this stage.
 
-The current Rust implementation uses the standard library (`std`).  
-A strict `no_std` safety core is a **planned future research direction** and is not enforced at this stage.
-
----
+Rust code is considered experimental and non-authoritative relative to the research concepts.
 
 ## Getting started (experimental)
-
-```bash
 git clone https://github.com/maliszewskiadrian/FINAL_FIOLET_ENGINE.git
 cd FINAL_FIOLET_ENGINE
 
@@ -118,68 +109,66 @@ source venv/bin/activate
 
 pip install -r requirements.txt
 python demos/basic_demo.py
-```
+This is a research prototype. Expect breaking changes.
 
-
-Current status
+## Current status
 Project phase: Research prototype
 
 Implemented
-activation monitoring
+Activation monitoring
 
-deviation detection
+Deviation detection
 
-deterministic halt mechanism (ATOMIC HALT)
+Deterministic halt mechanism (ATOMIC HALT)
 
-basic experiments on GPT-2 class models
+Basic experiments on GPT-2 class models
 
 Not yet implemented
-formal proofs and invariants
+Formal proofs and invariants
 
-large-scale benchmarks
+Large-scale benchmarks
 
-adaptive thresholds
+Adaptive thresholds
 
-production-grade API
+Production-grade API
 
-Known limitations
+## Known limitations
 Known failure modes are documented in KNOWN_FAILURE_MODES.md, including:
 
-false positives at aggressive thresholds
+False positives at aggressive thresholds
 
-dependence on model architecture
+Dependence on model architecture
 
-lack of adversarial robustness
+Lack of adversarial robustness
 
-static deviation thresholds
+Static deviation thresholds
 
-limited evaluation scope
+Limited evaluation scope
 
-Research direction
+## Research direction
 Open research questions include:
 
-which internal features best predict unsafe dynamics
+Which internal features best predict unsafe dynamics
 
-stability of baselines across model families
+Stability of baselines across model families
 
-trade-offs between adaptivity and determinism
+Trade-offs between adaptivity and determinism
 
-feasibility of formal safety guarantees
+Feasibility of formal safety guarantees
 
-Philosophy
+## Philosophy
 We do not ask whether a model is allowed to say something.
 We ask whether it should be allowed to reach that internal state at all.
 
 Safety is treated as a property of system dynamics, not language.
 
-Contributing
+## Contributing
 Contributions are welcome.
 Please read CONTRIBUTING.md before submitting changes.
 
-License
+## License
 MIT License
 
-Author
+## Author
 Adrian Maliszewski
 Independent research project focused on AI safety and system-level control of generative models.
-
