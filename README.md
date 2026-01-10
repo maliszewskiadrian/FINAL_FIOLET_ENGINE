@@ -88,7 +88,8 @@ FINAL_FIOLET_ENGINE/
 ├─ demos/                # Runnable demos and showcases
 ├─ docs/                 # Diagrams and technical documentation
 │
-├─ SafetyKernel.tla      # FORMAL spec (TLA+): monotonic halt safety kernel
+├─ SafetyKernel.tla      # FORMAL SPEC (TLA+): monotonic halt safety kernel
+├─ fiolet_core.h         # C ABI contract for the safety kernel (normative)
 │
 ├─ HOW_TO_READ_THIS_REPO.md
 ├─ KNOWN_FAILURE_MODES.md
