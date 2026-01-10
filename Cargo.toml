@@ -4,6 +4,10 @@ members = [
 ]
 resolver = "2"
 
+# ==================================================
+# WORKSPACE PACKAGE METADATA
+# ==================================================
+
 [workspace.package]
 version = "0.1.0"
 authors = ["Adrian Maliszewski <maliszewskiadrian01@gmail.com>"]
@@ -16,9 +20,18 @@ readme = "README.md"
 keywords = ["ai-safety", "alignment", "formal-verification", "rust"]
 categories = ["algorithms", "science"]
 
+# ==================================================
+# PROFILES (CRITICAL FOR no_std)
+# ==================================================
+#
+# These MUST live in the workspace root.
+# They are REQUIRED to avoid panic unwinding.
+#
+
 [profile.dev]
 opt-level = 0
 debug = true
+panic = "abort"
 
 [profile.release]
 opt-level = 3
@@ -29,4 +42,9 @@ strip = true
 
 [profile.test]
 opt-level = 1
+panic = "abort"
+
+[profile.bench]
+panic = "abort"
+
 
