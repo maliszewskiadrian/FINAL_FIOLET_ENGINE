@@ -7,6 +7,18 @@ resolver = "2"
 # ==================================================
 # WORKSPACE PACKAGE METADATA
 # ==================================================
+#
+# FINAL FIOLET ENGINE
+#
+# Experimental, research-focused AI safety system.
+# This workspace hosts a pre-semantic safety kernel.
+#
+# Normative specifications:
+# - SafetyKernel.tla (formal behavior)
+# - fiolet_core.h   (C ABI contract)
+#
+# Rust code is an IMPLEMENTATION, not the source of truth.
+#
 
 [workspace.package]
 version = "0.1.0"
@@ -17,15 +29,22 @@ repository = "https://github.com/maliszewskiadrian/FINAL_FIOLET_ENGINE"
 homepage = "https://github.com/maliszewskiadrian/FINAL_FIOLET_ENGINE"
 documentation = "https://github.com/maliszewskiadrian/FINAL_FIOLET_ENGINE/tree/main/docs"
 readme = "README.md"
-keywords = ["ai-safety", "alignment", "formal-verification", "rust"]
+keywords = ["ai-safety", "formal-verification", "rust", "systems"]
 categories = ["algorithms", "science"]
 
 # ==================================================
-# PROFILES (CRITICAL FOR no_std)
+# PROFILES (CRITICAL FOR no_std SAFETY KERNEL)
 # ==================================================
 #
-# These MUST live in the workspace root.
-# They are REQUIRED to avoid panic unwinding.
+# These profiles MUST live in the workspace root.
+# Subcrates MUST NOT override panic behavior.
+#
+# Rationale:
+# - no_std environment
+# - no unwinding allowed
+# - panic MUST be fail-closed (abort)
+#
+# This is part of the SAFETY MODEL.
 #
 
 [profile.dev]
@@ -46,5 +65,3 @@ panic = "abort"
 
 [profile.bench]
 panic = "abort"
-
-
