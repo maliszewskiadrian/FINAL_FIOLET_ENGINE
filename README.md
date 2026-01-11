@@ -211,6 +211,13 @@ tlc SafetyKernel.tla
 
 using the TLA+ tools on the repository root.
 
+## Safety
+
+FINAL FIOLET ENGINE implements a fail-closed safety kernel with a monotonic
+atomic halt mechanism, formally specified in TLA+.
+
+The monotonic halt invariant is enforced by executable tests (`atomic_halt_irreversible`).
+
 ## License
 MIT License
 
