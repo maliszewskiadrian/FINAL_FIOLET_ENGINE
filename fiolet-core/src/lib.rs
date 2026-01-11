@@ -30,8 +30,8 @@
 //! If the kernel is halted, every evaluation MUST return `AtomicHalt`.
 //!
 //! I5 — Threshold Trigger
-//! If deviation > limit, the kernel MUST latch into halted state
-//! and return `AtomicHalt`.
+//! If deviation > limit OR deviation is non-finite,
+//! the kernel MUST latch into halted state and return `AtomicHalt`.
 //!
 //! I6 — No Return From Halt
 //! There exists no execution path that returns `Continue` after a halt.
@@ -146,6 +146,7 @@ impl SafetyKernel {
     ///
     /// NORMATIVE BEHAVIOR (see SafetyKernel.tla):
     /// - If already halted → AtomicHalt
+    /// - If deviation is non-finite → latch + AtomicHalt
     /// - If deviation > limit → latch + AtomicHalt
     /// - Otherwise → Continue
     ///
@@ -154,10 +155,19 @@ impl SafetyKernel {
     /// - fail-closed
     /// - irreversible halt
     pub fn evaluate(&mut self, deviation: f32) -> SafetyDecision {
+        // I4 — Halt dominance
         if self.halted {
             return SafetyDecision::AtomicHalt;
         }
 
+        // FAIL-CLOSED RULE:
+        // Any non-finite deviation is treated as unsafe.
+        if !deviation.is_finite() {
+            self.halted = true;
+            return SafetyDecision::AtomicHalt;
+        }
+
+        // Threshold trigger
         if deviation > self.config.deviation_limit {
             self.halted = true;
             SafetyDecision::AtomicHalt
