@@ -1,226 +1,216 @@
+```markdown
 # FINAL FIOLET ENGINE
 
-![Status](https://img.shields.io/badge/status-research%20prototype-blue)
+![Status](https://img.shields.io/badge/status-normative%20safety%20kernel-critical)
 
-A pre-semantic safety interlock for generative language models.
+**FINAL FIOLET ENGINE** is a **safety-critical deterministic interlock system** whose core component, **`fiolet-core`**, is a **normative Safety Kernel** implemented in **Rust**.
 
----
-
-## Overview
-
-FINAL FIOLET ENGINE is an experimental AI safety research project focused on detecting and interrupting unsafe behavior in language models **before text is generated**.
-
-Instead of analyzing generated content, the system monitors **internal neural activations** during inference and halts generation when the model enters a statistically abnormal or unsafe internal state.
-
-This project treats AI safety as a **systems engineering and control problem**, not a content moderation task.
+This repository does **not** represent an application or demo framework.  
+It defines a **formal safety boundary**, a **reference implementation**, and a **binding safety standard**.
 
 ---
 
-## Motivation
+## Repository Scope
 
-Most existing safety mechanisms operate after generation:
+This repository exists to define and maintain:
 
-model → generated text → analysis → block
+- a **normative Safety Kernel implementation** (`fiolet-core`)
+- a **formal safety standard** (`FIOLET_SAFETY_STANDARD.md`)
+- **executable safety invariants** enforced by tests
+- a **compliance boundary** suitable for audit and certification
 
-At that point, the model has already reached an unsafe internal configuration.
-
-FIOLET moves safety upstream:
-
-prompt → internal activations → safety decision → continue | ATOMIC HALT
-
-### Core assumption
-
-Unsafe outputs are symptoms.  
-Unsafe internal states are the cause.
+Anything outside this scope is explicitly **out of bounds**.
 
 ---
 
-## Core concept
+## Core Component: `fiolet-core`
 
-During token generation, FIOLET performs:
+`fiolet-core` is a **deterministic, fail-closed, monotonic safety kernel** with the following enforced properties:
 
-1. **Activation monitoring**  
-   Selected internal layers of the model are observed in real time.
+- deterministic behavior
+- **monotonic halt** (halt is irreversible)
+- no hidden or mutable global state
+- `no_std` compatible design
+- `panic = abort` semantics in kernel mode
+- explicit and enumerable safety decisions
 
-2. **Deviation detection**  
-   Activations are compared against a baseline representing safe operating behavior.
-
-3. **Decision logic**  
-   If deviation exceeds a defined threshold, the system triggers **ATOMIC HALT** — an immediate and irreversible stop of generation.
-
-The system is:
-- pre-semantic
-- non-invasive (no weight modification)
-- deterministic
-- fail-closed
-- designed for formal analysis
+This crate is the **Normative Reference Implementation** of the FIOLET Safety Model.
 
 ---
 
-## High-level architecture
+## Safety Model (Pre-Semantic Interlock)
 
-![FIOLET Engine architecture](docs/architecture_overview.png)
+The FIOLET model treats safety as a **systems and control problem**, not a content moderation task.
 
-Internal activations are continuously monitored, evaluated by a deviation detector, and routed to a decision core that either allows generation to continue or halts execution immediately.
+High-level flow:
+
+```
+
+prompt → internal system state → safety decision → CONTINUE | ATOMIC_HALT
+
+```
+
+Core assumption:
+
+> Unsafe outputs are symptoms.  
+> Unsafe internal states are the cause.
+
+The kernel operates **pre-semantic**, without language understanding or content inspection.
 
 ---
 
-## Design principles
+## Normative Safety Standard
 
-- Pre-semantic only (no language understanding)
-- Fail-closed behavior
-- No fine-tuning of model weights
-- Deterministic decisions
-- Architecture prepared for formal verification
+The file:
+
+```
+
+FIOLET_SAFETY_STANDARD.md
+
+```
+
+is a **Normative Safety Contract v1.0**.
+
+It defines:
+
+- mandatory safety invariants (I1–I6)
+- formal behavioral constraints
+- compliance requirements
+- reference to the formal specification (`SafetyKernel.tla`)
+- required executable verification artifacts
+
+This document has **standard authority**.  
+All implementations **must conform** to it.
 
 ---
 
-## Repository structure
+## Reference Implementation Status
+
+`fiolet-core` is designated as:
+
+> **Normative Reference Implementation of the FIOLET Safety Kernel**
+
+This means:
+
+- its externally observable behavior defines correct semantics
+- deviations are considered **non-compliant**
+- changes require explicit safety justification
+- safety invariants may only be **strengthened**, never weakened
+
+---
+
+## Executable Compliance Verification
+
+Safety compliance is enforced by **normative tests**.
+
+In particular:
+
+```
+
+fiolet-core/tests/atomic_halt_irreversible.rs
+
+````
+
+This test is **normative**, not auxiliary.
+
+> The monotonic halt invariant is enforced by executable tests (`atomic_halt_irreversible`).
+
+Any implementation that fails this test is **non-compliant** with the FIOLET Safety Standard.
+
+---
+
+## Continuous Integration as Safety Gate
+
+GitHub Actions CI acts as a **safety gate**:
+
+- all normative tests must pass
+- failure indicates **loss of compliance**
+- CI success is a **minimum condition**, not a safety guarantee
+
+CI validates conformance, not intent.
+
+---
+
+## Repository Structure
 
 ```text
 FINAL_FIOLET_ENGINE/
-│
-├─ fiolet-core/          # no_std Rust safety kernel (research, fail-closed)
-├─ fiolet-host/          # std host-side test & simulation harness
-│
-├─ fiolet-python/        # Python-side research / integration (experimental)
-├─ experiments/          # Evaluation scripts and deviation experiments
-├─ notebooks/            # Analysis and visualization
-├─ demos/                # Runnable demos and showcases
-├─ docs/                 # Diagrams and technical documentation
-│   └─ Safety_Kernel_as_a_Standard.md  # Normative SAFETY standard (behavioral, non-ABI)
-│
-├─ ABI_CONTRACT.md       # STABLE ABI CONTRACT (hard boundary, normative)
-├─ SafetyKernel.tla      # FORMAL SPEC (TLA+): monotonic halt safety kernel
-├─ SafetyKernel.cfg      # TLC model checking configuration (invariants, properties)
-├─ fiolet_core.h         # C ABI contract for the safety kernel (normative)
-│
-├─ HOW_TO_READ_THIS_REPO.md
-├─ KNOWN_FAILURE_MODES.md
-├─ CONTRIBUTING.md
-└─ README.md
-```
-## Rust implementation note
-The current Rust implementation uses the standard library (std).
-A strict no_std safety core is a planned future research direction and is not enforced at this stage.
+├── Cargo.toml                # Workspace definition
+├── fiolet-core/              # Normative Rust safety kernel (reference)
+│   ├── Cargo.toml
+│   ├── src/lib.rs             # SAFETY KERNEL (normative)
+│   └── tests/
+│       └── atomic_halt_irreversible.rs
+├── .github/workflows/
+│   └── rust-ci.yml            # Compliance CI gate
+├── FIOLET_SAFETY_STANDARD.md  # Normative Safety Contract v1.0
+├── SafetyKernel.tla           # Formal TLA+ specification
+├── SafetyKernel.cfg           # TLC model-checking configuration
+├── HOW_TO_READ_THIS_REPO.md
+├── CONTRIBUTING.md
+└── README.md
+````
 
-Rust code is considered experimental and non-authoritative relative to the research concepts.
+---
 
-## Getting started (experimental)
+## Change Policy
 
-git clone https://github.com/maliszewskiadrian/FINAL_FIOLET_ENGINE.git
-cd FINAL_FIOLET_ENGINE
+Any change affecting:
 
-python -m venv venv
-source venv/bin/activate
+* `fiolet-core`
+* safety-relevant logic
+* externally observable kernel behavior
 
-pip install -r requirements.txt
-python demos/basic_demo.py
+**must** include:
 
-This is a research prototype. Expect breaking changes.
+1. invariant impact analysis
+2. standard consistency check
+3. passing normative tests
+4. explicit intent
 
-## Current status
-Project phase: Research prototype
+Silent behavior changes are treated as **defects**.
 
-Implemented
-Activation monitoring
+---
 
-Deviation detection
+## Compliance Statement
 
-Deterministic halt mechanism (ATOMIC HALT)
+An implementation is **FIOLET-compliant** if and only if:
 
-Basic experiments on GPT-2 class models
+* it conforms to `FIOLET_SAFETY_STANDARD.md`
+* it passes all normative tests
+* it preserves all defined safety invariants
 
-Not yet implemented
-Formal proofs and invariants
+No exceptions.
 
-Large-scale benchmarks
+---
 
-Adaptive thresholds
+## What This Repository Is NOT
 
-Production-grade API
+This repository is **not**:
 
-## Known limitations
-Known failure modes are documented in KNOWN_FAILURE_MODES.md, including:
+* a feature playground
+* a performance benchmark
+* a demo-first project
+* a general-purpose library
 
-False positives at aggressive thresholds
+Safety overrides convenience.
 
-Dependence on model architecture
-
-Lack of adversarial robustness
-
-Static deviation thresholds
-
-Limited evaluation scope
-
-## Research direction
-Open research questions include:
-
-Which internal features best predict unsafe dynamics
-
-Stability of baselines across model families
-
-Trade-offs between adaptivity and determinism
-
-Feasibility of formal safety guarantees
-
-## Philosophy
-We do not ask whether a model is allowed to say something.
-We ask whether it should be allowed to reach that internal state at all.
-
-Safety is treated as a property of system dynamics, not language.
-
-## Contributing
-Contributions are welcome.
-Please read CONTRIBUTING.md before submitting changes.
-
-## Formal verification (TLA+ / TLC)
-
-The FINAL FIOLET safety kernel is accompanied by a formal specification
-and a model-checking configuration that together define and verify its
-core safety guarantees.
-
-### Files
-- `SafetyKernel.tla` — formal TLA+ specification of the safety kernel
-- `SafetyKernel.cfg` — TLC model-checking configuration (invariants and properties)
-
-### Verified properties
-
-The following properties are checked automatically by the TLC model checker:
-
-- **Monotonic halt**  
-  Once the kernel enters the halted state, it can never return to a non-halted state.
-
-- **Fail-closed behavior**  
-  Any deviation exceeding the configured limit forces an immediate
-  and irreversible `ATOMIC_HALT` decision.
-
-- **Reachability of halt**  
-  There exists an execution path in which the system reaches the halted state.
-
-### Scope
-
-The formal model verifies the logical safety properties of the kernel.
-It does not model performance, floating-point precision, or host-side behavior.
-
-### Reproducibility
-
-Any third party can reproduce the verification by running:
-
-tlc SafetyKernel.tla
-
-using the TLA+ tools on the repository root.
-
-## Safety
-
-FINAL FIOLET ENGINE implements a fail-closed safety kernel with a monotonic
-atomic halt mechanism, formally specified in TLA+.
-
-The monotonic halt invariant is enforced by executable tests (`atomic_halt_irreversible`).
+---
 
 ## License
+
 MIT License
 
+---
+
 ## Author
+
 Adrian Maliszewski
-Independent research project focused on AI safety and system-level control of generative models.
+Independent research focused on safety-critical systems and deterministic control of generative models.
+
+---
+
+**This repository defines safety, not behavior.**
+
+```
+```
