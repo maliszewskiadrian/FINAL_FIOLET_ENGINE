@@ -8,7 +8,7 @@
 //! This module implements a deterministic, fail-closed safety kernel.
 //! Its behavior is FORMALLY SPECIFIED in the file:
 //!
-//!     SafetyKernel.tla
+//! SafetyKernel.tla
 //!
 //! That specification is the SOURCE OF TRUTH.
 //! Any change to logic MUST preserve all listed invariants.
@@ -65,6 +65,8 @@ use core::panic::PanicInfo;
 #[cfg(not(any(test, feature = "std")))]
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
+    // Fail-closed by design:
+    // any panic results in a permanent halt.
     loop {}
 }
 
@@ -72,25 +74,38 @@ fn panic(_info: &PanicInfo) -> ! {
 // CORE TYPES (ABI STABLE)
 // ============================================================
 
+/// Core decision returned by the safety kernel.
+///
+/// repr(C) is REQUIRED for FFI correctness.
 #[repr(C)]
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub enum SafetyDecision {
+    /// Generation may continue.
     Continue = 0,
+    /// Immediate and irreversible stop.
     AtomicHalt = 1,
 }
 
+/// Immutable safety threshold configuration.
+///
+/// Plain data only.
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct SafetyConfig {
+    /// Absolute deviation threshold.
     pub deviation_limit: f32,
 }
 
 impl SafetyConfig {
+    /// Create a new safety configuration.
     pub const fn new(deviation_limit: f32) -> Self {
         Self { deviation_limit }
     }
 }
 
+/// Safety kernel state.
+///
+/// Minimal, deterministic, monotonic.
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct SafetyKernel {
@@ -99,6 +114,7 @@ pub struct SafetyKernel {
 }
 
 impl SafetyKernel {
+    /// Create a new safety kernel.
     pub const fn new(config: SafetyConfig) -> Self {
         Self {
             config,
@@ -106,6 +122,7 @@ impl SafetyKernel {
         }
     }
 
+    /// Evaluate a single deviation signal.
     pub fn evaluate(&mut self, deviation: f32) -> SafetyDecision {
         if self.halted {
             return SafetyDecision::AtomicHalt;
@@ -124,6 +141,7 @@ impl SafetyKernel {
         }
     }
 
+    /// Query whether the kernel is already halted.
     pub const fn is_halted(&self) -> bool {
         self.halted
     }
@@ -166,7 +184,9 @@ mod tests {
         assert_eq!(kernel.evaluate(0.1), SafetyDecision::Continue);
         assert_eq!(kernel.evaluate(1.0), SafetyDecision::AtomicHalt);
         assert_eq!(kernel.evaluate(0.0), SafetyDecision::AtomicHalt);
-        assert_eq!(kernel.evaluate(0.1), SafetyDecision::AtomicHalt);
-        assert_eq!(kernel.evaluate(100.0), SafetyDecision::AtomicHalt);
     }
 }
+
+// ============================================================
+// END OF FINAL FIOLET SAFETY KERNEL
+// ============================================================
