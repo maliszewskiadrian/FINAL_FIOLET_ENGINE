@@ -8,7 +8,7 @@
 //! This module implements a deterministic, fail-closed safety kernel.
 //! Its behavior is FORMALLY SPECIFIED in the file:
 //!
-//!     /SafetyKernel.tla
+//!     `SafetyKernel.tla`
 //!
 //! That specification is the SOURCE OF TRUTH.
 //! Any change to logic MUST preserve all listed invariants.
