@@ -40,42 +40,29 @@
 //! SYSTEM CONSTRAINTS
 //! -------------------------
 //!
-//! - no_std
+//! - no_std (kernel mode)
 //! - no allocation
-//! - panic = abort (workspace-enforced)
+//! - panic = abort (kernel mode)
 //! - deterministic execution
 //! - fail-closed by construction
 //!
 //! This is a SAFETY INTERLOCK, not an application.
 //! Liveness is explicitly NOT guaranteed.
 
-#![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(not(any(test, feature = "std")), no_std)]
 
 // ============================================================
 // FINAL FIOLET SAFETY KERNEL
 // ============================================================
-//
-// Deterministic, pre-semantic safety interlock.
-//
-//     CONTINUE  |  ATOMIC_HALT
-//
-// Properties:
-// - no_std
-// - no alloc
-// - no side effects
-// - deterministic
-// - fail-closed
-// - FFI-safe
-// - auditable
-//
-// ============================================================
 
+#[cfg(not(any(test, feature = "std")))]
 use core::panic::PanicInfo;
 
 // ============================================================
-// PANIC HANDLER (REQUIRED FOR no_std)
+// PANIC HANDLER (KERNEL ONLY — NEVER DURING TESTS)
 // ============================================================
 
+#[cfg(not(any(test, feature = "std")))]
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
     // Fail-closed by design:
@@ -149,11 +136,6 @@ impl SafetyKernel {
     /// - If deviation is non-finite → latch + AtomicHalt
     /// - If deviation > limit → latch + AtomicHalt
     /// - Otherwise → Continue
-    ///
-    /// Guarantees:
-    /// - deterministic
-    /// - fail-closed
-    /// - irreversible halt
     pub fn evaluate(&mut self, deviation: f32) -> SafetyDecision {
         // I4 — Halt dominance
         if self.halted {
