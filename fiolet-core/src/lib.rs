@@ -78,7 +78,7 @@ fn panic(_info: &PanicInfo) -> ! {
 ///
 /// repr(C) is REQUIRED for FFI correctness.
 #[repr(C)]
-#[derive(Copy, Clone, Eq, PartialEq)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub enum SafetyDecision {
     /// Generation may continue.
     Continue = 0,
@@ -186,6 +186,31 @@ pub extern "C" fn fiolet_kernel_evaluate(
 #[no_mangle]
 pub extern "C" fn fiolet_kernel_is_halted(kernel: &SafetyKernel) -> bool {
     kernel.is_halted()
+}
+
+// ============================================================
+// TESTS (STD ONLY — NOT PART OF TRUSTED KERNEL)
+// ============================================================
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn atomic_halt_is_irreversible() {
+        let mut kernel = SafetyKernel::new(SafetyConfig::new(0.5));
+
+        // Below limit → CONTINUE
+        assert_eq!(kernel.evaluate(0.1), SafetyDecision::Continue);
+
+        // Above limit → ATOMIC_HALT
+        assert_eq!(kernel.evaluate(1.0), SafetyDecision::AtomicHalt);
+
+        // After halt → MUST stay halted forever
+        assert_eq!(kernel.evaluate(0.0), SafetyDecision::AtomicHalt);
+        assert_eq!(kernel.evaluate(0.1), SafetyDecision::AtomicHalt);
+        assert_eq!(kernel.evaluate(100.0), SafetyDecision::AtomicHalt);
+    }
 }
 
 // ============================================================
