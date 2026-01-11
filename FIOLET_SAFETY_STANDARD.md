@@ -1,115 +1,181 @@
-# FIOLET SAFETY STANDARD (NORMATIVE)
+```md
+# FIOLET SAFETY STANDARD
+## Normative Safety Contract v1.0
 
-## Status
+This document defines the **mandatory safety standard** for all implementations
+of the FINAL FIOLET ENGINE safety kernel.
 
-**Normative / Binding**
-
-This document defines the mandatory safety properties of the FIOLET Safety Kernel. Any implementation claiming compliance **MUST** satisfy all requirements herein.
+This is a **normative document**.
+Any system claiming compliance with FIOLET **MUST** satisfy all requirements
+defined herein.
 
 ---
 
 ## 1. Scope
 
-This standard specifies a *fail-closed, deterministic safety interlock* intended for kernel-level or safety-critical systems. Liveness is explicitly out of scope.
+This standard applies to:
+
+- The `fiolet-core` safety kernel
+- Any FFI, wrapper, runtime, or downstream system invoking it
+- Any future reimplementation claiming FIOLET compatibility
+
+This standard governs **safety only**, not performance or liveness.
 
 ---
 
-## 2. Definitions
+## 2. Safety Model
 
-* **Atomic Halt** — An immediate, irreversible transition into a terminal halted state.
-* **Fail-Closed** — Any undefined, erroneous, or non-finite input results in a halt.
-* **Kernel** — The minimal trusted computing base implementing this standard.
+The FIOLET safety model is:
+
+- Deterministic
+- Fail-closed
+- Monotonic
+- Irreversible
+
+Safety is enforced by **state latching**, not by recovery.
 
 ---
 
-## 3. Normative Invariants
+## 3. Core Safety Invariants (MANDATORY)
 
-The following invariants are **mandatory** and **non-negotiable**:
+The following invariants are **absolute** and **non-negotiable**.
 
 ### I1 — Monotonic Halt
 
-Once the kernel enters the halted state, it SHALL remain halted forever.
+Once the kernel enters the halted state, it **MUST remain halted forever**.
 
-### I2 — Single Transition
+There exists **no execution path** that allows a return to a running state.
 
-The only allowed state transition is:
+---
+
+### I2 — Single State Transition
+
+The only permitted state transition is:
 
 ```
+
 Running → Halted
+
 ```
 
-### I3 — No Hidden State
-
-All safety-relevant state SHALL be explicitly contained within the kernel state.
-
-### I4 — Halt Dominance
-
-If the kernel is halted, every evaluation SHALL return `AtomicHalt`.
-
-### I5 — Threshold Trigger
-
-If deviation > configured limit **OR** deviation is non-finite, the kernel SHALL latch into the halted state and return `AtomicHalt`.
-
-### I6 — No Return From Halt
-
-There SHALL exist no execution path that returns `Continue` after a halt.
+No other transitions are allowed.
 
 ---
 
-## 4. Reference Specification
+### I3 — Halt Dominance
 
-The formal reference specification for this standard is defined in:
-
-* `SafetyKernel.tla`
-
-In case of ambiguity, the TLA+ specification SHALL take precedence over any implementation.
+If the kernel is halted, **every evaluation MUST return `AtomicHalt`**,
+independent of input.
 
 ---
 
-## 5. Reference Implementation
+### I4 — Threshold Trigger
 
-A conforming reference implementation is provided in Rust (`fiolet-core`):
+If an evaluated deviation:
 
-* `SafetyKernel`
-* `SafetyDecision`
+- exceeds the configured limit, **OR**
+- is non-finite (NaN / ±∞)
 
-Compliance is enforced via:
-
-* Unit tests
-* Integration tests
-* Continuous Integration (CI)
+the kernel **MUST immediately latch into the halted state**.
 
 ---
 
-## 6. Compliance
+### I5 — No Hidden State
 
-An implementation is compliant if and only if:
+All safety-relevant state **MUST be explicit** and fully contained
+within the safety kernel structure.
 
-* All invariants I1–I6 are satisfied
-* All provided tests pass without modification
-* No additional state or transitions are introduced
-
----
-
-## 7. Security Rationale
-
-This design intentionally sacrifices liveness for safety. Any unexpected condition results in a permanent halt, preventing unsafe continuation.
+Hidden, implicit, global, or external safety state is forbidden.
 
 ---
 
-## 8. Versioning
+### I6 — Fail-Closed Semantics
 
-This document defines **FIOLET Safety Standard v1.0**.
+Any undefined, exceptional, or erroneous condition **MUST resolve to HALT**.
 
-Any change to invariants SHALL require a major version increment.
-
----
-
-## 9. Final Statement
-
-> This is not an opinionated guideline.
-> This is a mathematically bound safety contract.
+Fail-open behavior is strictly prohibited.
 
 ---
 
-**END OF STANDARD**
+## 4. Panic and Fault Handling
+
+In kernel / no_std mode:
+
+- Any panic **MUST result in permanent halt**
+- Recovery from panic is forbidden
+
+This requirement ensures fail-closed behavior under all fault conditions.
+
+---
+
+## 5. ABI Stability Requirements
+
+The public ABI:
+
+- MUST be stable
+- MUST use `repr(C)` for all exposed types
+- MUST preserve semantic meaning of return values
+
+Breaking ABI safety semantics is considered a **standard violation**.
+
+---
+
+## 6. Formal Specification
+
+The authoritative formal specification of this standard is defined in:
+
+```
+
+SafetyKernel.tla
+
+```
+
+The TLA+ specification is the **source of truth** for all safety behavior.
+
+Code is considered correct **only if it conforms to the formal model**.
+
+---
+
+## 7. Compliance Verification
+
+Compliance with this standard is enforced by:
+
+- Executable tests
+- Invariant tests
+- Continuous Integration (CI)
+
+In particular:
+
+> The monotonic halt invariant is enforced by executable tests
+> (`atomic_halt_irreversible`).
+
+Failure of these tests **invalidates compliance**.
+
+---
+
+## 8. Non-Compliance
+
+Any implementation that violates **any** requirement of this document:
+
+- MUST NOT be labeled as FIOLET-compliant
+- MUST NOT claim safety guarantees
+- MUST be considered unsafe by definition
+
+---
+
+## 9. Versioning
+
+This document defines:
+
+```
+
+FIOLET SAFETY STANDARD — Version 1.0
+
+```
+
+Any future changes **MUST** be explicit, versioned, and justified.
+
+---
+
+## END OF STANDARD
+```
