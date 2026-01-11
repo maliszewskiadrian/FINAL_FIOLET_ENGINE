@@ -23,10 +23,10 @@ jobs:
         with:
           components: rustfmt, clippy
 
-      - name: Build fiolet-core (no_std, abort-on-panic)
+      - name: Build fiolet_core (no_std, abort-on-panic)
         run: |
-          cargo build -p fiolet-core --verbose
+          cargo build -p fiolet_core --verbose
 
       - name: Run safety tests (monotonic halt invariant)
         run: |
-          cargo test -p fiolet-core --verbose
+          cargo test -p fiolet_core --verbose
