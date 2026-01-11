@@ -88,8 +88,9 @@ FINAL_FIOLET_ENGINE/
 ├─ notebooks/            # Analysis and visualization
 ├─ demos/                # Runnable demos and showcases
 ├─ docs/                 # Diagrams and technical documentation
-│   └─ Safety_Kernel_as_a_Standard.md  # Normative safety standard
+│   └─ Safety_Kernel_as_a_Standard.md  # Normative SAFETY standard (behavioral, non-ABI)
 │
+├─ ABI_CONTRACT.md       # STABLE ABI CONTRACT (hard boundary, normative)
 ├─ SafetyKernel.tla      # FORMAL SPEC (TLA+): monotonic halt safety kernel
 ├─ SafetyKernel.cfg      # TLC model checking configuration (invariants, properties)
 ├─ fiolet_core.h         # C ABI contract for the safety kernel (normative)
