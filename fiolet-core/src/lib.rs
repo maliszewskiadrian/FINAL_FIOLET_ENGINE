@@ -8,7 +8,7 @@
 //! This module implements a deterministic, fail-closed safety kernel.
 //! Its behavior is FORMALLY SPECIFIED in the file:
 //!
-//!     `SafetyKernel.tla`
+//!     SafetyKernel.tla
 //!
 //! That specification is the SOURCE OF TRUTH.
 //! Any change to logic MUST preserve all listed invariants.
@@ -65,8 +65,6 @@ use core::panic::PanicInfo;
 #[cfg(not(any(test, feature = "std")))]
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
-    // Fail-closed by design:
-    // any panic results in a permanent halt.
     loop {}
 }
 
@@ -74,43 +72,25 @@ fn panic(_info: &PanicInfo) -> ! {
 // CORE TYPES (ABI STABLE)
 // ============================================================
 
-/// Core decision returned by the safety kernel.
-///
-/// repr(C) is REQUIRED for FFI correctness.
 #[repr(C)]
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub enum SafetyDecision {
-    /// Generation may continue.
     Continue = 0,
-    /// Immediate and irreversible stop.
     AtomicHalt = 1,
 }
 
-/// Immutable safety threshold configuration.
-///
-/// Plain data only.
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct SafetyConfig {
-    /// Absolute deviation threshold.
     pub deviation_limit: f32,
 }
 
 impl SafetyConfig {
-    /// Create a new safety configuration.
     pub const fn new(deviation_limit: f32) -> Self {
         Self { deviation_limit }
     }
 }
 
-/// Safety kernel state.
-///
-/// Minimal, deterministic, monotonic.
-///
-/// INVARIANTS:
-/// - Monotonic halt (no return to running)
-/// - No hidden state
-/// - Fail-closed evaluation
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct SafetyKernel {
@@ -119,9 +99,6 @@ pub struct SafetyKernel {
 }
 
 impl SafetyKernel {
-    /// Create a new safety kernel.
-    ///
-    /// Initial state is always Running.
     pub const fn new(config: SafetyConfig) -> Self {
         Self {
             config,
@@ -129,27 +106,16 @@ impl SafetyKernel {
         }
     }
 
-    /// Evaluate a single deviation signal.
-    ///
-    /// NORMATIVE BEHAVIOR (see SafetyKernel.tla):
-    /// - If already halted → AtomicHalt
-    /// - If deviation is non-finite → latch + AtomicHalt
-    /// - If deviation > limit → latch + AtomicHalt
-    /// - Otherwise → Continue
     pub fn evaluate(&mut self, deviation: f32) -> SafetyDecision {
-        // I4 — Halt dominance
         if self.halted {
             return SafetyDecision::AtomicHalt;
         }
 
-        // FAIL-CLOSED RULE:
-        // Any non-finite deviation is treated as unsafe.
         if !deviation.is_finite() {
             self.halted = true;
             return SafetyDecision::AtomicHalt;
         }
 
-        // Threshold trigger
         if deviation > self.config.deviation_limit {
             self.halted = true;
             SafetyDecision::AtomicHalt
@@ -158,9 +124,6 @@ impl SafetyKernel {
         }
     }
 
-    /// Query whether the kernel is already halted.
-    ///
-    /// This state is terminal and irreversible.
     pub const fn is_halted(&self) -> bool {
         self.halted
     }
@@ -200,19 +163,10 @@ mod tests {
     fn atomic_halt_is_irreversible() {
         let mut kernel = SafetyKernel::new(SafetyConfig::new(0.5));
 
-        // Below limit → CONTINUE
         assert_eq!(kernel.evaluate(0.1), SafetyDecision::Continue);
-
-        // Above limit → ATOMIC_HALT
         assert_eq!(kernel.evaluate(1.0), SafetyDecision::AtomicHalt);
-
-        // After halt → MUST stay halted forever
         assert_eq!(kernel.evaluate(0.0), SafetyDecision::AtomicHalt);
         assert_eq!(kernel.evaluate(0.1), SafetyDecision::AtomicHalt);
         assert_eq!(kernel.evaluate(100.0), SafetyDecision::AtomicHalt);
     }
 }
-
-// ============================================================
-// END OF FINAL FIOLET SAFETY KERNEL
-// ============================================================
