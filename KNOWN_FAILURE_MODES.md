@@ -128,25 +128,28 @@ Status:
 
 ---
 
-## 6. Floating-Point Sensitivity
+## 6. Floating-Point Sensitivity and Non-Finite Values
 
 Deviation signals and thresholds rely on floating-point arithmetic.
 
 Cause:
-- use of `f32` for ABI stability and performance
+- use of `f32` for ABI stability and simplicity
 - hardware-dependent floating-point behavior
+- presence of non-finite values (`NaN`, `+∞`, `-∞`)
 
 Impact:
 - minor numerical discrepancies across platforms
-- edge-case threshold comparisons may vary at extreme precision limits
+- non-finite deviation values may occur due to upstream errors
 
 Rationale:
-- determinism is defined at the logical level, not bit-identical execution
-- float usage is a pragmatic engineering choice
+- the safety kernel treats **any non-finite deviation as unsafe**
+- `NaN` or infinite values **immediately trigger ATOMIC_HALT**
+- this is an intentional **fail-closed design choice**
 
 Status:
 - known
-- acceptable within research scope
+- explicitly handled by the kernel
+- considered a safe failure mode
 
 ---
 
@@ -194,7 +197,29 @@ Status:
 
 ---
 
-## 9. Limited Formal Scope
+## 9. ABI Trust Boundary Limitations
+
+The safety kernel is accessed exclusively via a C ABI.
+
+Cause:
+- explicit separation between trusted kernel and untrusted host environment
+- ABI chosen as the normative interface
+
+Impact:
+- kernel cannot enforce correct usage by the host
+- incorrect memory handling or misuse can invalidate guarantees
+
+Rationale:
+- the ABI boundary is the **formal trust boundary**
+- correctness beyond the ABI is explicitly out of scope
+
+Status:
+- known
+- accepted by design
+
+---
+
+## 10. Limited Formal Scope
 
 Formal verification applies only to the abstract safety kernel model.
 
@@ -206,7 +231,8 @@ Impact:
 - formal guarantees do not extend to:
   - host-side code
   - model implementation
-  - hardware execution details
+  - floating-point execution details
+  - hardware or concurrency effects
 
 Rationale:
 - kernel is designed to be *formally reasoned about in isolation*
@@ -226,6 +252,8 @@ The project does not claim comprehensive AI safety.
 Its goal is to investigate whether **internal model dynamics can serve as a
 deterministic, pre-semantic safety signal**, and to do so in a way that is
 auditable, formalizable, and honest about its limitations.
+
+---
 
 ## Mapping to Formal Specification
 
@@ -247,9 +275,10 @@ model checking:
 | Property | Failure Modes Addressed | Mechanism |
 |--------|-------------------------|-----------|
 | Monotonic halt | Recovery after halt | `MonotonicHalt` invariant |
-| Fail-closed decision | Unsafe continuation after threshold breach | `FailClosed` invariant |
-| Deterministic decision | Non-deterministic safety outcomes | Single transition rule |
-| Irreversibility of halt | Halt bypass | Latched `halted = TRUE` state |
+| Fail-closed decision | Unsafe continuation | `FailClosed` invariant |
+| Non-finite deviation handling | `NaN` / `±Inf` inputs | `UnsafeDeviation` rule |
+| Deterministic decision | Non-deterministic outcomes | Single transition rule |
+| Irreversibility of halt | Halt bypass | Latched `halted = TRUE` |
 
 These properties are considered **hard guarantees** of the safety kernel
 model and implementation.
@@ -263,13 +292,14 @@ model and are not addressed by the TLA+ specification:
 
 | Failure Mode | Reason for Exclusion |
 |-------------|----------------------|
-| False positives (over-halting) | Treated as safe failures, not violations |
+| False positives (over-halting) | Treated as safe failures |
 | Semantic misclassification | Pre-semantic design |
-| Adversarial prompt bypass | No adversarial threat model |
+| Adversarial prompt bypass | No threat model |
 | Architecture transferability | Deviation treated as local signal |
 | Partial activation coverage | Abstracted deviation input |
-| Floating-point precision effects | Abstracted numeric domain |
+| Floating-point precision variance | Abstracted numeric domain |
 | Performance and latency | Non-functional property |
+| Host-side misuse of ABI | Outside kernel trust boundary |
 
 These exclusions are design decisions, not omissions.
 
@@ -280,14 +310,15 @@ These exclusions are design decisions, not omissions.
 The TLA+ specification models:
 
 - the abstract kernel state (`halted`)
-- deviation input as an unconstrained external signal
+- deviation as an unconstrained external signal
+- non-finite deviation as unsafe input
 - binary safety decision (`CONTINUE` / `ATOMIC_HALT`)
 
 The following are **outside the formal boundary**:
 
 - host-side code and orchestration
 - neural network implementation
-- floating-point arithmetic behavior
+- floating-point execution details
 - timing, concurrency, or hardware effects
 
 ---
@@ -305,11 +336,11 @@ only that the failure lies beyond the modeled scope.
 
 ---
 
-### Summary
+### Final Note
 
 The formal specification establishes a **small, trusted core** with strong,
 provable guarantees.
 
-All other behaviors — including false positives, missed signals, and semantic
-errors — are treated as **environmental risks**, not kernel failures.
-
+All other behaviors — including false positives, missed signals, semantic
+errors, and invalid deviation inputs — are treated as **environmental risks**,
+not kernel failures.
