@@ -1,3 +1,7 @@
+![Status](https://img.shields.io/badge/status-safety--critical%20kernel-critical)
+![Rust](https://img.shields.io/badge/rust-1.70%2B-orange)
+![License: MIT](https://img.shields.io/badge/License-MIT-green)
+
 # FINAL FIOLET ENGINE
 
 ![Status](https://img.shields.io/badge/status-safety--critical%20kernel-critical)
