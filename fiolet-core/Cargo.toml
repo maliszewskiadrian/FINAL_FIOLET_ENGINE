@@ -31,3 +31,12 @@ crate-type = ["lib", "staticlib", "cdylib"]
 default = ["kernel"]
 kernel = []
 std = []
+
+# ==================================================
+# DEV DEPENDENCIES (CONFORMANCE ONLY)
+# ==================================================
+# These are used EXCLUSIVELY for standard conformance tests.
+# They are NOT linked into the safety kernel.
+
+[dev-dependencies]
+fiolet-ageofdarkness = { path = "../FIOLET-AgeOfDarkness", default-features = false }
