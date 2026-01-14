@@ -1,32 +1,33 @@
-// Conformance adapter.
-// This module MUST NEVER be part of the production kernel.
+#![cfg(test)]
 
-use fiolet::ett::*;
-use fiolet::esv::*;
+use fiolet_ageofdarkness::engine::evaluate_trace;
+use fiolet_ageofdarkness::esv::EpistemicTrace;
 
-use super::result::ConformanceResult;
+/// Result of FIOLET conformance validation
+#[derive(Debug, PartialEq)]
+pub enum ConformanceResult {
+    Allow,
+    Halt,
+}
 
 /// FIOLET Conformance Adapter
 ///
-/// This adapter is the ONLY permitted integration point
-/// between FINAL_FIOLET_ENGINE and the FIOLET AgeOfDarkness standard.
+/// TEST-ONLY module.
+/// NEVER linked into production kernel.
 ///
-/// NON-NEGOTIABLE:
+/// Rules:
 /// - full epistemic trace required
-/// - no partial emission
 /// - HALT is terminal
 pub struct FioletConformanceAdapter;
 
 impl FioletConformanceAdapter {
-    /// Validate full epistemic trace before emission.
-    ///
-    /// Silence on HALT is mandatory.
     pub fn validate(trace: EpistemicTrace) -> ConformanceResult {
-        let mut ctx = ETTContext::from_trace(trace);
+        let result = evaluate_trace(trace);
 
-        match ctx.evaluate() {
-            ETTDecision::Terminate => ConformanceResult::Compliant,
-            ETTDecision::Continue => ConformanceResult::Violation,
+        if result.is_halt() {
+            ConformanceResult::Halt
+        } else {
+            ConformanceResult::Allow
         }
     }
 }
