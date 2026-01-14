@@ -191,6 +191,7 @@ mod tests {
 // CONFORMANCE ADAPTER (ENGINE ⇄ STANDARD BOUNDARY)
 // ============================================================
 
+#[cfg(feature = "std")]
 pub mod fiolet_conformance;
 
 // ============================================================
