@@ -20,12 +20,6 @@ crate-type = ["lib", "staticlib", "cdylib"]
 # ==================================================
 # FEATURES
 # ==================================================
-#
-# IMPORTANT:
-# - kernel = pure no_std safety kernel
-# - std    = reserved ONLY for host-side tooling
-#           (must NEVER be enabled for kernel builds)
-#
 
 [features]
 default = ["kernel"]
@@ -33,10 +27,14 @@ kernel = []
 std = []
 
 # ==================================================
-# DEV DEPENDENCIES (CONFORMANCE ONLY)
+# DEV DEPENDENCIES (STANDARD CONFORMANCE ONLY)
 # ==================================================
-# These are used EXCLUSIVELY for standard conformance tests.
-# They are NOT linked into the safety kernel.
+# Linked via Git.
+# NOT part of the kernel.
+# Used ONLY in tests.
 
 [dev-dependencies]
-fiolet-ageofdarkness = { path = "../FIOLET-AgeOfDarkness", default-features = false }
+fiolet-ageofdarkness = { 
+    git = "https://github.com/maliszewskiadrian/FIOLET-AgeOfDarkness",
+    default-features = false
+}
