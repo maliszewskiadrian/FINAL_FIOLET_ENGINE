@@ -20,6 +20,10 @@ crate-type = ["lib", "staticlib", "cdylib"]
 # ==================================================
 # FEATURES
 # ==================================================
+#
+# kernel = pure no_std safety kernel
+# std    = test / conformance only
+#
 
 [features]
 default = ["kernel"]
@@ -29,9 +33,14 @@ std = []
 # ==================================================
 # DEV DEPENDENCIES (STANDARD CONFORMANCE ONLY)
 # ==================================================
-# FIOLET AgeOfDarkness is an EXTERNAL STANDARD.
-# We depend on the PACKAGE name.
-# The Rust crate name exposed is `fiolet`.
+# FIOLET AgeOfDarkness — external standard
+# Package name: fiolet-age-of-darkness
+# Crate name exposed: fiolet
+# Pinned to verified commit
 
 [dev-dependencies]
-fiolet-age-of-darkness = { git = "https://github.com/maliszewskiadrian/FIOLET-AgeOfDarkness", default-features = false }
+fiolet-age-of-darkness = {
+    git = "https://github.com/maliszewskiadrian/FIOLET-AgeOfDarkness",
+    rev = "fcc4ae1",
+    default-features = false
+}
