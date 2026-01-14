@@ -8,15 +8,30 @@ license = "MIT"
 repository = "https://github.com/maliszewskiadrian/FINAL_FIOLET_ENGINE"
 readme = "../README.md"
 
+# ==================================================
+# LIBRARY CONFIGURATION
+# ==================================================
+
 [lib]
 name = "fiolet_core"
 path = "src/lib.rs"
 crate-type = ["lib", "staticlib", "cdylib"]
+
+# ==================================================
+# FEATURES
+# ==================================================
 
 [features]
 default = ["kernel"]
 kernel = []
 std = []
 
+# ==================================================
+# DEV DEPENDENCIES (STANDARD CONFORMANCE ONLY)
+# ==================================================
+# FIOLET AgeOfDarkness is an EXTERNAL STANDARD.
+# We depend on the PACKAGE name.
+# The Rust crate name exposed is `fiolet`.
+
 [dev-dependencies]
-fiolet-ageofdarkness = { git = "https://github.com/maliszewskiadrian/FIOLET-AgeOfDarkness", package = "fiolet_ageofdarkness", default-features = false }
+fiolet-age-of-darkness = { git = "https://github.com/maliszewskiadrian/FIOLET-AgeOfDarkness", default-features = false }
