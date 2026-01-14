@@ -183,8 +183,13 @@ FINAL_FIOLET_ENGINE/
 ├── Cargo.toml
 ├── fiolet-core/
 │   ├── Cargo.toml
-│   ├── src/lib.rs
-│   └── tests/atomic_halt_irreversible.rs
+│   ├── src/
+│   │   ├── lib.rs
+│   │   └── fiolet_conformance/
+│   │       ├── mod.rs
+│   │       └── adapter.rs
+│   └── tests/
+│       └── atomic_halt_irreversible.rs
 ├── .github/workflows/rust-ci.yml
 ├── FIOLET_SAFETY_STANDARD.md
 ├── SafetyKernel.tla
