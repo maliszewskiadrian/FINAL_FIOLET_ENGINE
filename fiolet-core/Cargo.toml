@@ -1,0 +1,22 @@
+[package]
+name = "fiolet_core"
+version = "0.1.0"
+edition = "2021"
+authors = ["Adrian Maliszewski <maliszewskiadrian01@gmail.com>"]
+description = "Deterministic pre-semantic safety kernel (ATOMIC HALT)"
+license = "MIT"
+repository = "https://github.com/maliszewskiadrian/FINAL_FIOLET_ENGINE"
+readme = "../README.md"
+
+[lib]
+name = "fiolet_core"
+path = "src/lib.rs"
+crate-type = ["lib", "staticlib", "cdylib"]
+
+[features]
+default = ["kernel"]
+kernel = []
+std = []
+
+[dev-dependencies]
+fiolet-ageofdarkness = { git = "https://github.com/maliszewskiadrian/FIOLET-AgeOfDarkness", package = "fiolet_ageofdarkness", default-features = false }
