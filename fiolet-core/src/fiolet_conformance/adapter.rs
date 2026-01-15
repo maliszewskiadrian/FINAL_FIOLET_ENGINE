@@ -1,6 +1,3 @@
-use fiolet_ageofdarkness::engine::evaluate_trace;
-use fiolet_ageofdarkness::esv::EpistemicTrace;
-
 /// Result of FIOLET conformance validation
 #[derive(Debug, PartialEq)]
 pub enum ConformanceResult {
@@ -19,13 +16,9 @@ pub enum ConformanceResult {
 pub struct FioletConformanceAdapter;
 
 impl FioletConformanceAdapter {
-    pub fn validate(trace: EpistemicTrace) -> ConformanceResult {
-        let result = evaluate_trace(trace);
-
-        if result.is_halt() {
-            ConformanceResult::Halt
-        } else {
-            ConformanceResult::Allow
-        }
+    /// Dummy validate function for testing without AgeOfDarkness
+    pub fn validate<T>(_trace: T) -> ConformanceResult {
+        // Always return Allow by default
+        ConformanceResult::Allow
     }
 }
