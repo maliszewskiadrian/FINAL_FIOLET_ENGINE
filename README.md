@@ -84,10 +84,11 @@ FINAL_FIOLET_ENGINE/
 ├── HOW_TO_READ_THIS_REPO.md
 ├── CONTRIBUTING.md
 └── README.md
+```
 
 ---
 
-An implementation is FIOLET-compliant if:
+## An implementation is FIOLET-compliant if:
 
 It conforms to FIOLET_SAFETY_STANDARD.md.
 
