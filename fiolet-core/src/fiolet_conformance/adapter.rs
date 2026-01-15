@@ -1,3 +1,5 @@
+#![cfg(test)]
+
 use fiolet_ageofdarkness::engine::evaluate_trace;
 use fiolet_ageofdarkness::esv::EpistemicTrace;
 
