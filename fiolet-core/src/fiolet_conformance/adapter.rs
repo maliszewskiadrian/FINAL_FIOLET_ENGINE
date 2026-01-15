@@ -1,3 +1,6 @@
+//! TEST-ONLY module.
+//! NEVER linked into production kernel.
+
 use fiolet_ageofdarkness::engine::evaluate_trace;
 use fiolet_ageofdarkness::esv::EpistemicTrace;
 
@@ -9,13 +12,6 @@ pub enum ConformanceResult {
 }
 
 /// FIOLET Conformance Adapter
-///
-/// TEST-ONLY module.
-/// NEVER linked into production kernel.
-///
-/// Rules:
-/// - full epistemic trace required
-/// - HALT is terminal
 pub struct FioletConformanceAdapter;
 
 impl FioletConformanceAdapter {
