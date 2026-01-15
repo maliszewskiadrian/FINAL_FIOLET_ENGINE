@@ -37,6 +37,7 @@ std = []
 # Package name: fiolet-age-of-darkness
 # Crate name exposed: fiolet
 # Pinned to verified commit
+# Used only in test / std features
 
 [dev-dependencies]
-fiolet-age-of-darkness = { git = "https://github.com/maliszewskiadrian/FIOLET-AgeOfDarkness", rev = "0e1ef1d539a07bb89fb76b5e3ef2cdbe5f10667b", default-features = true }
+fiolet-age-of-darkness = { git = "https://github.com/maliszewskiadrian/FIOLET-AgeOfDarkness", rev = "0e1ef1d539a07bb89fb76b5e3ef2cdbe5f10667b", default-features = false }
