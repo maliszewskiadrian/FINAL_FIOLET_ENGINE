@@ -179,3 +179,8 @@ Any future changes **MUST** be explicit, versioned, and justified.
 
 ## END OF STANDARD
 ```
+
+Known limitation (v0.1.0-snapshot):
+Normative CI may fail due to an unresolved import in the pinned
+FIOLET-AgeOfDarkness commit fcc4ae1.
+This does not affect kernel correctness.
