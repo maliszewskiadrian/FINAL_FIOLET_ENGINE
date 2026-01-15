@@ -85,6 +85,8 @@ FINAL_FIOLET_ENGINE/
 ├── CONTRIBUTING.md
 └── README.md
 
+---
+
 An implementation is FIOLET-compliant if:
 
 It conforms to FIOLET_SAFETY_STANDARD.md.
